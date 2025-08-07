@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Card Game</title>
+    <style>
+        body {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            overflow: hidden;
+        }
+        #game-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #instruction {
+            margin: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        #card-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .card-wrapper {
+            width: 200px;
+            height: 300px;
+            position: relative;
+        }
+        .card {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+        .back, .front {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            transition: transform 0.5s ease-in-out;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .back {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            transform: rotateY(0deg);
+        }
+        .front {
+            background: white;
+            transform: rotateY(180deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #card-container.reject-phase .front {
+            background-color: #ffcccc;
+        }
+        #card-container.select-phase .front {
+            background-color: #ccffcc;
+        }
+        .flipped .back {
+            transform: rotateY(180deg);
+        }
+        .flipped .front {
+            transform: rotateY(0deg);
+        }
+        .slide-down {
+            transform: translateY(100vh);
+            opacity: 0;
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+        }
+        .slide-up {
+            transform: translateY(-100vh);
+            opacity: 0;
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+        }
+        .selected {
+            border: 4px solid green;
+        }
+        #progress-container {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: grid;
+            grid-template-columns: repeat(8, 42px);
+            grid-template-rows: repeat(29, 22px);
+            gap: 2px;
+            width: 350px;
+            background-color: transparent;
+        }
+        #selected-container {
+            position: absolute;
+            top: calc(50% - 377px);
+            left: 10px;
+            width: 1052px;
+            height: auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            align-content: flex-start;
+            gap: 4px;
+        }
+        #rejected-container {
+            position: absolute;
+            left: 10px;
+            top: calc(50% + 273px);
+            width: 1052px;
+            height: 100px;
+            overflow-x: auto;
+            display: flex;
+            flex-direction: row-reverse;
+            flex-wrap: wrap-reverse;
+            justify-content: flex-start;
+            align-content: flex-start;
+        }
+        #neither-container {
+            position: absolute;
+            right: 10px;
+            top: calc(50% - 377px);
+            width: 172px;
+            height: auto;
+            display: flex;
+            flex-direction: row-reverse;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            align-content: flex-start;
+            gap: 4px;
+        }
+        .progress-icon {
+            width: 40px;
+            height: 20px;
+            background-color: #ADD8E6;
+            border-radius: 4px;
+        }
+        .selected-icon {
+            width: 40px;
+            height: 20px;
+            background-color: green;
+            border-radius: 4px;
+        }
+        .rejected-icon {
+            width: 40px;
+            height: 20px;
+            background-color: red;
+            margin: 2px;
+            border-radius: 4px;
+        }
+        .neither-icon {
+            width: 40px;
+            height: 20px;
+            background-color: grey;
+            border-radius: 4px;
+        }
+        .hidden {
+            display: none;
+        }
+        .temp-icon {
+            position: fixed;
+            z-index: 1000;
+            transition: left 0.5s ease-in-out, top 0.5s ease-in-out, width 0.5s ease-in-out, height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+            pointer-events: none;
+            display: block;
+        }
+        #undo-button {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: -50px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            background-color: #ddd;
+            border: none;
+            cursor: pointer;
+            display: none;
+        }
+        #auto-progress {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: -100px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            background-color: #ddd;
+            border: none;
+            cursor: pointer;
+        }
+        #results-container {
+            display: none;
+            font-size: 16px;
+            font-family: monospace;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            width: 100%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="progress-container"></div>
+        <div id="selected-container"></div>
+        <div id="instruction">Click anywhere to start the game</div>
+        <div id="card-container" class="hidden">
+            <div class="card-wrapper">
+                <div class="card">
+                    <div class="back"></div>
+                    <div class="front"></div>
+                </div>
+            </div>
+            <div class="card-wrapper">
+                <div class="card">
+                    <div class="back"></div>
+                    <div class="front"></div>
+                </div>
+            </div>
+            <div class="card-wrapper">
+                <div class="card">
+                    <div class="back"></div>
+                    <div class="front"></div>
+                </div>
+            </div>
+        </div>
+        <button id="undo-button">I want to change my mind</button>
+        <button id="auto-progress">Auto Progress</button>
+        <div id="rejected-container"></div>
+        <div id="neither-container"></div>
+    </div>
+    <div id="results-container"></div>
+
+    <script>
+        const questionsData = [
+"People have not been there to help me handle my feelings.|ed",
+"I have not gotten enough love and attention.|ed",
+"Mostly, I have not had someone to depend on for advice and help with how I feel.|ed",
+"I have mostly not had someone to look after me, share themself with me, or care deeply about what happens to me.|ed",
+"I have not or rarely had someone who wanted to get close to me and spend a lot of time with me.|ed",
+"People have mostly not been there to give me warmth and kindness.|ed",
+"For much of my life, I have not felt that I am special to someone.|ed",
+"I have usually not had someone who really listens to me or is tuned into my true needs and feelings.|ed",
+"I have rarely had a strong person to give me advice or direction when I need it.|ed",
+"I worry that the people I love will die soon, even though there is little medical reason for me to worry.|ab",
+"I find myself clinging to people I am close to, because I am afraid they will leave me.|ab",
+"I worry that people I feel close to will leave me or abandon me.|ab",
+"I feel that I lack a stable base of support from someone who cares about me.|ab",
+"I do not feel that important relationships will last; I expect them to end.|ab",
+"I feel addicted to partners who cannot be there for me in a committed way.|ab",
+"In the end, I will be alone.|ab",
+"When I feel someone I care for pulling away from me, I can do crazy things.|ab",
+"Sometimes I am so worried about people leaving me that I drive them away.|ab",
+"I become upset when someone leaves me alone, even for a short period of time.|ab",
+"I cannot count on people who I should be able to rely on to be there when I need them.|ab",
+"I cannot let myself get really close to other people, because I cannot be sure they will always be there.|ab",
+"It seems that the important people in my life are always coming and going.|ab",
+"I worry a lot that the people I love will find someone else they prefer and leave me.|ab",
+"People close to me have been unpredictable: one moment they are nice to me, the next they are angry, upset, selfish or fighting.|ab",
+"I need other people so much that I worry about losing them.|ab",
+"I cannot be myself or express what I really feel, or people will leave me.|ab",
+"I feel that people will take advantage of me.|ma",
+"I often feel that I have to protect myself from other people.|ma",
+"I am reluctant to let my guard down in the presence of other people, or else they will plan to hurt me.|ma",
+"If someone acts nicely towards me, I assume that they must be after something.|ma",
+"It is only a matter of time before someone betrays me.|ma",
+"Most people only think about themselves.|ma",
+"I have a great deal of difficulty trusting people.|ma",
+"I am quite suspicious of other peoples motives.|ma",
+"Other people are rarely honest; they are usually not what they appear.|ma",
+"I am usually on the lookout for peoples ulterior motives.|ma",
+"If I think someone is out to hurt me, I try to hurt him or her first.|ma",
+"People usually have to prove themselves to me before I can trust them.|ma",
+"I set up tests for other people, to see if they are telling me the truth and are well-intentioned.|ma",
+"I subscribe to the belief: Control or be controlled.|ma",
+"I get angry when I think about the ways I have been mistreated by other people during my life.|ma",
+"During my life, those close to me have taken advantage of me or used me for their own purposes.|ma",
+"Important people in my life have often tried to hurt my feelings or physically, or sexually abused me.|ma",
+"I do not fit in.|si",
+"I am fundamentally different from other people.|si",
+"I do not belong; I am a loner.|si",
+"I feel alienated from other people.|si",
+"I feel isolated and alone.|si",
+"I always feel on the outside of groups.|si",
+"No one really understands me.|si",
+"My family was always different from the families around us.|si",
+"I sometimes feel as if I am an alien.|si",
+"If I disappeared tomorrow, no one would notice.|si",
+"No one I desire could love me once they see my defects.|ds",
+"No one I desire would want to stay close to me if they knew the real me.|ds",
+"I am just born flawed and defective.|ds",
+"No matter how hard I try, I doubt I will be able to get a significant man or woman to respect me or feel that I am worthwhile.|ds",
+"I am unworthy of the love, attention, and respect of others.|ds",
+"I feel that I am not lovable.|ds",
+"I am unacceptable in very basic ways. I do not want others to see the real me.|ds",
+"If others found out about my basic defects, I could not face them.|ds",
+"When people like me, I feel I am fooling them.|ds",
+"Often I find that I want to spend time with people who are very critical of me or reject me.|ds",
+"I have inner secrets that I do not want people close to me to find out.|ds",
+"It is my fault that my parents could not love me enough.|ds",
+"I do not let people know the real me.|ds",
+"One of my greatest fears is that my defects will be exposed.|ds",
+"I cannot understand how anyone could love me.|ds",
+"Almost nothing I do at work is as good as other people can do.|fa",
+"I am incompetent when it comes to achievement.|fa",
+"Most other people are more capable than I am at work or in other things I do.|fa",
+"I am a failure.|fa",
+"I am not as talented in my work as most people are at theirs.|fa",
+"I am not as intelligent as most people when it comes to work.|fa",
+"I am humiliated by my failures and inadequacies at work.|fa",
+"I often feel embarrassed around other people, because I do not measure up to them in terms of what I have done.|fa",
+"I often compare the things I have done with others and feel that they are more successful.|fa",
+"I do not feel capable of getting by on my own in everyday life.|di",
+"I need other people to help me get by.|di",
+"I do not feel I can cope well by myself.|di",
+"I believe that other people can take care of me better than I can take care of myself.|di",
+"I have trouble tackling new tasks outside of work unless I have someone to guide me.|di",
+"I think of myself as a dependent person when it comes to getting through the days and weeks.|di",
+"I screw up everything I try, even outside of work.|di",
+"I am inept in most areas of life.|di",
+"If I trust my own judgment in everyday situations I will make the wrong decision.|di",
+"I lack common sense.|di",
+"My judgment cannot be relied on in everyday situations.|di",
+"I do not feel confident about my ability to solve everyday problems.|di",
+"I need someone I can rely on to give me advice about practical issues.|di",
+"I feel more like a child than an adult when it comes to handling the problems of everyday life.|di",
+"I find the responsibilities of everyday life overwhelming.|di",
+"I cannot seem to escape the feeling that something bad is about to happen.|vu",
+"I feel that a disaster (criminal, financial, or medical) could strike at any moment.|vu",
+"I worry about becoming a street person or vagrant.|vu",
+"I worry about being attacked.|vu",
+"I take great precautions to avoid getting sick or hurt.|vu",
+"I worry that I am developing a serious illness even though nothing has been diagnosed.|vu",
+"I am a fearful person.|vu",
+"I worry a lot about the bad things happening in the world like crime or pollution.|vu",
+"I feel that I might go crazy.|vu",
+"I often feel that I am going to have an anxiety attack.|vu",
+"I worry that I might have a heart attack or cancer even though there is little medical reason to.|vu",
+"I feel the world is a dangerous place.|vu",
+"I have not been able to separate myself from my parents the way other people my age seem to.|eu",
+"My parents and I tend to be overinvolved in each others lives and problems.|eu",
+"It is very difficult for my parents and me to keep intimate details from each other, without feeling betrayed or guilty.|eu",
+"My parents and I have to speak to each other almost every day, or else one of us feels guilty, disappointed, or alone.|eu",
+"I often feel that I do not have a separate identity from my parents or partner.|eu",
+"I often feel as if my parents are living through me — I do not have a life of my own.|eu",
+"It is very difficult for me to maintain any distance from the people I am really close to; I have trouble keeping any separate sense of myself.|eu",
+"I am so involved with my partner or parents that I do not really know who I am or what I want.|eu",
+"I have trouble separating my point of view or opinion from that of my parents or partner.|eu",
+"I feel that I have no privacy when it comes to my parents or partner.|eu",
+"I feel that my parents would be hurt by me living away from them on my own.|eu",
+"I let other people have their way, because I fear what might happen.|sb",
+"I believe that if I do what I want, I am only asking for trouble.|sb",
+"I have no choice but to give in to other peoples wishes, or else they will retaliate or reject me in some way.|sb",
+"In relationships, I let the other person have the upper hand.|sb",
+"I have let others make choices for me, so I really do not know what I want for myself.|sb",
+"I feel the major decisions in my life were not really my own.|sb",
+"I worry about pleasing other people, so they will not reject me.|sb",
+"I have trouble demanding that my rights be respected and that my feelings be considered.|sb",
+"I get back at people in little ways instead of showing my anger directly.|sb",
+"I will go to greater lengths than most people to avoid confrontations.|sb",
+"I put others needs before my own, or else I feel guilty.|ss",
+"I feel guilty when I let other people down or disappoint them.|ss",
+"I give more to other people than I get back in return.|ss",
+"I am the one who usually ends up taking care of the people I am close to.|ss",
+"There is almost nothing I could not put up with if I loved someone.|ss",
+"I am a good person because I think of others more than of myself.|ss",
+"At work, I am usually the one to volunteer to do extra tasks or to put in extra time.|ss",
+"No matter how busy I am, I can always find time for others.|ss",
+"I can get by on very little, because my needs are minimal.|ss",
+"I am only happy when those around me are happy.|ss",
+"I am so busy doing for the people that I care about that I have little time for myself.|ss",
+"I have always been the one who listens to everyone elses problems.|ss",
+"I am happier to give a present than to receive one.|ss",
+"Other people see me as doing too much for others and not enough for myself.|ss",
+"No matter how much I give, I feel it is never enough.|ss",
+"If I do what I want, I feel very uncomfortable.|ss",
+"It is very difficult for me to ask others to take care of my needs.|ss",
+"I worry about losing control of my actions.|ei",
+"I worry that I might seriously physically or emotionally hurt someone if my anger gets out of control.|ei",
+"I must control how I feel and be careful in how I act, or something bad is likely to happen.|ei",
+"A lot of anger and resentment builds up inside of me that I do not express.|ei",
+"I am too self-conscious to show positive feelings to others (eg, being nice first, showing I care).|ei",
+"I find it embarrassing to express my feelings to others.|ei",
+"I find it hard to be warm or to start fun conversations without thinking about it first.|ei",
+"I control myself so much that people think I am unemotional.|ei",
+"People see me as uptight and think that I do not show my feelings.|ei",
+"I must be the best at most of what I do; I cannot accept second best.|us",
+"I strive to keep almost everything in perfect order.|us",
+"I must look my best most of the time.|us",
+"I try to do my best; I cannot settle for good enough.|us",
+"I have so much to accomplish that there is almost no time to really relax.|us",
+"Almost nothing I do is quite good enough; I can always do better.|us",
+"I must meet all my responsibilities.|us",
+"I feel there is constant pressure for me to achieve and get things done.|us",
+"My relationships suffer because I push myself so hard.|us",
+"My health is suffering because I put myself under so much pressure to do well.|us",
+"I often sacrifice pleasure and happiness to meet my own standards.|us",
+"When I make a mistake, I deserve strong criticism.|us",
+"I cannot let myself off the hook easily or make excuses for my mistakes.|us",
+"I am a very competitive person.|us",
+"I put a good deal of emphasis on money or status.|us",
+"I have to be Number One, in terms of my performance.|us",
+"I have trouble accepting no for an answer when I want something from other people.|et",
+"I often get angry or irritable if I cannot get what I want.|et",
+"I am special and should not have to accept many of the rules placed on other people.|et",
+"I hate to be constrained or kept from doing what I want.|et",
+"I feel that I should not have to follow the normal conventions and rules that other people do.|et",
+"What I have to offer is usually of greater value than the contributions of others.|et",
+"I usually put my needs ahead of the needs of others.|et",
+"I find that I am so involved in my own plans and actions that I often do not have time to give to friends or family.|et",
+"People tell me I am very controlling about how things are done.|et",
+"I get irritated when people will not do what I ask of them.|et",
+"I cannot tolerate other people telling me what to do.|et",
+"I have difficulty getting myself to stop drinking, overeating, or other problem behaviors.|is",
+"I cannot discipline myself to complete routine or boring tasks.|is",
+"I tend to carry through on impulses and express emotions that get me into trouble or hurt other people.|is",
+"If I cannot reach a goal, I become easily frustrated and give up.|is",
+"I find it hard to put off what I want right now in order to get what I want in the future.|is",
+"Once I start to feel angry, I usually just cannot control it.|is",
+"I tend to overdo things, even though I know they are bad for me.|is",
+"I get bored very easily.|is",
+"When tasks become difficult, I usually stop and cannot complete them.|is",
+"I cannot concentrate on anything for too long.|is",
+"I cannot force myself to do things I do not enjoy, even when I know it is for my own good.|is",
+"I lose my temper at the slightest offense.|is",
+"I have rarely been able to stick to my resolutions.|is",
+"I usually cannot hold back from showing people how I feel, no matter what the cost may be.|is",
+"I often do things without thinking that I later regret.|is",
+"It is important to me to be liked by almost everyone I know.|as",
+"I change myself depending on the people I am with, so they will like me more.|as",
+"I try hard to fit in.|as",
+"My feelings about myself are based mostly on how other people view me.|as",
+"Having money and knowing important people make me feel worthwhile.|as",
+"I spend a lot of time on my physical appearance so people value me.|as",
+"My successes are most valuable to me when other people notice them.|as",
+"I am so focused on fitting in that sometimes I do not know who I am.|as",
+"When setting my own goals, I usually thinking about how others will view them.|as",
+"When I look back at my life decisions, I see that getting other peoples approval was an important part of the decision.|as",
+"Even if I do not like someone, I still want him or her to like me.|as",
+"Unless I get a lot of attention from others, I feel less important.|as",
+"When I am introduced, or make remarks at a meeting, I enjoy the respect and admiration that follows.|as",
+"Lots of praise and compliments make me feel like a worthwhile person.|as",
+"Even when things seem to be going well, I feel that it is only temporary.|np",
+"If something good happens, I worry that something bad is likely to follow.|np",
+"You cannot be too careful; something will almost always go wrong.|np",
+"No matter how hard I work, I worry that I could lose all my money.|np",
+"I worry that a wrong decision could lead to disaster.|np",
+"I can obsess over minor decisions, because making a mistake seems so serious.|np",
+"It is better assuming that things will not work out for me, that way I do not feel disappointed if things go wrong.|np",
+"I focus more on the negative aspects of life and of events than on the positive.|np",
+"I tend to be pessimistic.|np",
+"People close to me consider me a worrier.|np",
+"If people get too enthusiastic about something, I become uncomfortable and feel like warning them of what could go wrong.|np",
+"If I make a mistake, I deserve to be punished.|pu",
+"If I do not try my hardest, I should expect to lose out.|pu",
+"There is no excuse if I make a mistake.|pu",
+"People who do not pull their own weight should get punished in some way.|pu",
+"Usually I do not accept the excuses other people make. They are just not willing to accept responsibility and suffer what happens next.|pu",
+"If I do not do the job, I should suffer whatever happens next.|pu",
+"I often think about my mistakes and feel angry with myself.|pu",
+"When people do something bad, I have trouble applying the phrase, Forgive and forget.|pu",
+"I hold grudges, even after someone has apologized.|pu",
+"I get upset when I think someone has been let off the hook too easily.|pu",
+"I get angry when people make excuses for themselves, or blame other people for their problems.|pu",
+"It does not matter why I make a mistake; when I do something wrong, I should pay the price.|pu",
+"I beat-up on myself a lot for things I screw up.|pu",
+"I am a bad person who deserves to be punished.|pu"
+        ];
+
+        const categoryData = [
+            {group: "DAR", category: "ds", descriptor: "Must hide the real me", total: 15},
+            {group: "DAR", category: "ed", descriptor: "Want to be wanted", total: 9},
+            {group: "DAR", category: "ei", descriptor: "My feelings are dangerous", total: 9},
+            {group: "DAR", category: "ma", descriptor: "Cannot trust anyone", total: 17},
+            {group: "DAR", category: "si", descriptor: "On the outside", total: 10},
+            {group: "ERS", category: "as", descriptor: "Being liked matters more than anything", total: 14},
+            {group: "ERS", category: "np", descriptor: "Success is short and temporary", total: 11},
+            {group: "ERS", category: "pu", descriptor: "Forgiveness is weak, consequences must follow", total: 14},
+            {group: "ERS", category: "ss", descriptor: "My time and feelings matter less", total: 17},
+            {group: "ERS", category: "us", descriptor: "Only perfection is good enough", total: 16},
+            {group: "IAP", category: "ab", descriptor: "Left out or let down", total: 17},
+            {group: "IAP", category: "di", descriptor: "Without others I am nothing", total: 15},
+            {group: "IAP", category: "em", descriptor: "Bound up in others lives", total: 11},
+            {group: "IAP", category: "fa", descriptor: "I nearly always fail", total: 9},
+            {group: "IAP", category: "sb", descriptor: "Others have more power than I do", total: 10},
+            {group: "IAP", category: "vh", descriptor: "Disaster is just around the corner", total: 12},
+            {group: "IL", category: "et", descriptor: "I know best so do it", total: 11},
+            {group: "IL", category: "is", descriptor: "What I want right now takes over", total: 15}
+        ];
+
+        const questionsByCategory = {};
+        questionsData.forEach(line => {
+            const [question, category] = line.split('|');
+            if (question && category) {
+                if (!questionsByCategory[category]) {
+                    questionsByCategory[category] = [];
+                }
+                questionsByCategory[category].push(question);
+            }
+        });
+
+        const greenSelections = {};
+        categoryData.forEach(({category}) => {
+            greenSelections[category] = 0;
+        });
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function generateSets(questionsByCategory, numSets) {
+            const sets = [];
+            const allQuestions = [];
+            for (const category in questionsByCategory) {
+                allQuestions.push(...questionsByCategory[category].map(q => ({ text: q, category })));
+            }
+            shuffle(allQuestions);
+            
+            for (let i = 0; i < numSets && allQuestions.length >= 3; i++) {
+                const set = [];
+                const usedCategories = new Set();
+                for (let j = 0; j < 3 && allQuestions.length > 0; ) {
+                    const question = allQuestions.pop();
+                    if (!usedCategories.has(question.category)) {
+                        set.push(question);
+                        usedCategories.add(question.category);
+                        j++;
+                    } else {
+                        allQuestions.unshift(question);
+                    }
+                }
+                if (set.length === 3) {
+                    sets.push(set);
+                }
+            }
+            return sets;
+        }
+
+        const totalSets = Math.floor(232 / 3);
+        const sets = generateSets(questionsByCategory, totalSets);
+        let currentSetIndex = 0;
+        let rejectedCard = null;
+        let removeFromTop = true;
+
+        const cards = document.querySelectorAll('.card');
+        const instruction = document.getElementById('instruction');
+        let isFlipped = false;
+        let selectionStep = 0;
+        let isAnimating = false;
+
+        const progressContainer = document.getElementById('progress-container');
+        for (let i = 0; i < 232; i++) {
+            const icon = document.createElement('div');
+            icon.className = 'progress-icon';
+            progressContainer.appendChild(icon);
+        }
+
+        function animateCardToContainer(card, containerId, iconClass, text, callback) {
+            const initialRect = card.getBoundingClientRect();
+            const frontClone = card.querySelector('.front').cloneNode(true);
+            frontClone.className = 'temp-icon';
+            frontClone.style.left = initialRect.left + 'px';
+            frontClone.style.top = initialRect.top + 'px';
+            frontClone.style.width = initialRect.width + 'px';
+            frontClone.style.height = initialRect.height + 'px';
+            frontClone.style.opacity = '1';
+            document.body.appendChild(frontClone);
+
+            const actualIcon = document.createElement('div');
+            actualIcon.className = iconClass;
+            actualIcon.title = text;
+            actualIcon.style.visibility = 'hidden';
+            const container = document.getElementById(containerId);
+            container.appendChild(actualIcon);
+
+            requestAnimationFrame(() => {
+                const targetRect = actualIcon.getBoundingClientRect();
+                requestAnimationFrame(() => {
+                    frontClone.style.left = targetRect.left + 'px';
+                    frontClone.style.top = targetRect.top + 'px';
+                    frontClone.style.width = targetRect.width + 'px';
+                    frontClone.style.height = targetRect.height + 'px';
+                    frontClone.style.opacity = '0';
+                });
+            });
+
+            frontClone.addEventListener('transitionend', () => {
+                document.body.removeChild(frontClone);
+                actualIcon.style.visibility = 'visible';
+                if (callback) callback();
+            }, { once: true });
+        }
+
+        function addNeitherIcon(text) {
+            const icon = document.createElement('div');
+            icon.className = 'neither-icon';
+            icon.title = text;
+            document.getElementById('neither-container').appendChild(icon);
+        }
+
+        function displayResults() {
+            const resultsContainer = document.getElementById('results-container');
+            resultsContainer.style.display = 'flex';
+            resultsContainer.innerHTML = '<h2>Results</h2><pre></pre>';
+
+            const groupColors = {
+                DAR: '#0000FF', // Blue
+                ERS: '#C65102', // Orange
+                IAP: '#800080', // Purple
+                IL: '#FF00FF'   // Magenta
+            };
+
+            const maxDescriptorLength = Math.max(...categoryData.map(({descriptor}) => descriptor.length));
+
+            const sortedByGroup = categoryData.reduce((acc, {group, category, descriptor, total}) => {
+                const greenCount = greenSelections[category] || 0;
+                const percentage = Math.round((greenCount / total) * 100);
+                if (!acc[group]) acc[group] = [];
+                acc[group].push({category, descriptor, percentage, total});
+                return acc;
+            }, {DAR: [], ERS: [], IAP: [], IL: []});
+
+            const barChart = ['DAR', 'ERS', 'IAP', 'IL'].flatMap(group => {
+                const categories = sortedByGroup[group].sort((a, b) => b.percentage - a.percentage);
+                return categories.map(({descriptor, percentage}) => {
+                    const stars = '*'.repeat(Math.round(percentage / 10));
+                    const paddedDescriptor = descriptor.padEnd(maxDescriptorLength, ' ');
+                    return `<div style="color: ${groupColors[group]}">${paddedDescriptor}: ${stars} (${percentage}%)</div>`;
+                });
+            }).join('');
+
+            resultsContainer.querySelector('pre').innerHTML = barChart;
+        }
+
+        function displaySet() {
+            if (currentSetIndex >= sets.length) {
+                instruction.innerText = "All sets completed!";
+                cards.forEach(card => {
+                    card.style.display = 'none';
+                });
+                document.getElementById('undo-button').style.display = 'none';
+                document.getElementById('game-container').style.display = 'none';
+                displayResults();
+                return;
+            }
+
+            if (removeFromTop) {
+                for (let i = 0; i < 3 && progressContainer.firstChild; i++) {
+                    progressContainer.removeChild(progressContainer.firstChild);
+                }
+            } else {
+                for (let i = 0; i < 3 && progressContainer.lastChild; i++) {
+                    progressContainer.removeChild(progressContainer.lastChild);
+                }
+            }
+            removeFromTop = !removeFromTop;
+
+            const numIcons = progressContainer.children.length;
+            const numRows = Math.ceil(numIcons / 8);
+            progressContainer.style.gridTemplateRows = `repeat(${numRows}, 22px)`;
+            progressContainer.style.height = `calc((22px + 2px) * ${numRows} - 2px)`;
+
+            const set = sets[currentSetIndex];
+            cards.forEach((card, index) => {
+                card.querySelector('.front').innerText = set[index].text;
+                card.dataset.category = set[index].category;
+                card.style.display = 'block';
+                card.style.visibility = 'visible';
+                card.style.transform = '';
+                card.style.opacity = '1';
+                card.classList.remove('flipped', 'slide-down', 'slide-up', 'selected');
+            });
+            isFlipped = false;
+            selectionStep = 0;
+            isAnimating = false;
+            instruction.innerText = "Click any card to flip all cards";
+            document.getElementById('card-container').classList.remove('reject-phase', 'select-phase');
+            document.getElementById('undo-button').style.display = 'none';
+        }
+
+        function flipCards() {
+            cards.forEach(card => card.classList.add('flipped'));
+            isFlipped = true;
+            selectionStep = 1;
+            instruction.innerText = "Choose which option is LEAST like you";
+            document.getElementById('card-container').classList.add('reject-phase');
+        }
+
+        document.body.addEventListener('click', startGame, { once: true });
+
+        function startGame() {
+            document.getElementById('card-container').classList.remove('hidden');
+            displaySet();
+        }
+
+        function undoRejection() {
+            if (rejectedCard && selectionStep === 2) {
+                rejectedCard.style.visibility = 'visible';
+                const rejectedContainer = document.getElementById('rejected-container');
+                if (rejectedContainer.lastChild) {
+                    rejectedContainer.removeChild(rejectedContainer.lastChild);
+                }
+                document.getElementById('card-container').classList.remove('select-phase');
+                document.getElementById('card-container').classList.add('reject-phase');
+                instruction.innerText = "Choose which option is LEAST like you";
+                selectionStep = 1;
+                document.getElementById('undo-button').style.display = 'none';
+            }
+        }
+
+        cards.forEach((card, index) => {
+            card.addEventListener('click', () => {
+                if (card.style.display === 'none' || isAnimating) return;
+
+                if (!isFlipped && selectionStep === 0) {
+                    flipCards();
+                } else if (isFlipped && selectionStep === 1) {
+                    isAnimating = true;
+                    rejectedCard = card;
+                    const rejectedText = card.querySelector('.front').innerText;
+                    animateCardToContainer(card, 'rejected-container', 'rejected-icon', rejectedText, () => {
+                        document.getElementById('card-container').classList.remove('reject-phase');
+                        document.getElementById('card-container').classList.add('select-phase');
+                        instruction.innerText = "Which option is MOST like you";
+                        selectionStep = 2;
+                        document.getElementById('undo-button').style.display = 'block';
+                        isAnimating = false;
+                    });
+                    card.style.visibility = 'hidden';
+                } else if (isFlipped && selectionStep === 2) {
+                    isAnimating = true;
+                    card.classList.add('selected');
+                    const selectedText = card.querySelector('.front').innerText;
+                    const category = card.dataset.category;
+                    greenSelections[category] = (greenSelections[category] || 0) + 1;
+                    const neitherCard = Array.from(cards).find(c => c.style.visibility !== 'hidden' && c !== card);
+                    const neitherText = neitherCard ? neitherCard.querySelector('.front').innerText : '';
+                    setTimeout(() => {
+                        animateCardToContainer(card, 'selected-container', `selected-icon`, selectedText, () => {
+                            if (neitherText) {
+                                addNeitherIcon(neitherText);
+                            }
+                            currentSetIndex++;
+                            displaySet();
+                        });
+                        card.style.visibility = 'hidden';
+                        if (neitherCard) neitherCard.style.visibility = 'hidden';
+                    }, 300);
+                }
+            });
+        });
+
+        document.getElementById('undo-button').addEventListener('click', undoRejection);
+
+        const autoProgressButton = document.getElementById('auto-progress');
+        autoProgressButton.addEventListener('click', () => {
+            autoProgressButton.disabled = true;
+            const interval = setInterval(() => {
+                const instructionText = instruction.innerText;
+                if (instructionText === "Click anywhere to start the game") {
+                    document.body.click();
+                } else if (instructionText === "Click any card to flip all cards") {
+                    cards[0].click();
+                } else if (instructionText === "Choose which option is LEAST like you") {
+                    cards[0].click();
+                } else if (instructionText === "Which option is MOST like you") {
+                    cards[1].click();
+                } else if (instructionText === "All sets completed!") {
+                    clearInterval(interval);
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>
