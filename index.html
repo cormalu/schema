@@ -1189,13 +1189,17 @@ function displayResults() {
         document.getElementById('continue-button').addEventListener('click', startGame, { once: true });
         function startGame() {
             instruction.innerText = 
-            `The first part of this session is a card game\n
-            You will be shown 3 statements, one on each card
+            `The first part of this session resembles a card game\n
+            To your left are many blue boxes, each box represents a card.
+            The system will draw 3 cards from there, 
+            each card has a statement on it.\n
             You should first choose the card most NOT like you, 
-            then choose the card that is most LIKE you.\n
-            There will probably be some sets where maybe all the cards are like you or all are not. Just make a choice.\n 
-            Your card will go into the group of cards for that choice.
-            When the card is in its group, you can click on it to mark it for later review. A little black mark will appear on the card.\n
+            this will go to the orange box, 
+            then choose the card that is most LIKE you, 
+            this will go to the purple box.  
+            The remaining card will go to the grey box\n
+            There will be some sets where all the cards are like you or all are not. Just make a choice, you can change it later.\n 
+            To mark a card for later review just click on it after you have sent it to its box. A little black mark will appear on the card.\n
             When you are ready to start click continue`;
             continueButton.style.display = 'block';
             continueButton.focus();
@@ -1206,7 +1210,7 @@ function displayResults() {
             }, { once: true });
         }
         instruction.innerText = 
-        `You are about to go through a game experience that will ask you some questions you may find very sensitive.\n
+        `You are about to go through an interactive experience that will ask you some questions you may find very sensitive.\n
         This session is totally anonymous, your name is not recorded and no-one can see what you enter.\n
         At the end of the session you will get a results summary.
         This should give you insight into some of your deeper motivations and potential blockers to your learning.\n
