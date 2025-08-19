@@ -195,6 +195,7 @@ background: repeating-linear-gradient(
             border-radius: 4px;
             margin: 2px;
             box-sizing: border-box;
+            position: relative; /* Ensure dot positions relative to brick */
         }
         .rejected-icon {
             width: 40px;
@@ -203,6 +204,7 @@ background: repeating-linear-gradient(
             margin: 2px;
             border-radius: 4px;
             box-sizing: border-box;
+            position: relative; /* Ensure dot positions relative to brick */
         }
         .neither-icon {
             width: 40px;
@@ -213,6 +215,7 @@ background: repeating-linear-gradient(
             box-sizing: border-box;
             background-image: linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1) 75%, transparent 75%, transparent);
             background-size: 4px 4px;
+            position: relative; /* Ensure dot positions relative to brick */
         }
         .hidden {
             display: none;
@@ -262,12 +265,24 @@ background: repeating-linear-gradient(
         #timer-canvas {
             margin: 10px;
             position: absolute;
-            top: calc(50% - 200px);
+            top: calc(50% - 230px); /* Higher to be above instruction */
             left: 50%;
             transform: translateX(-50%);
             z-index: 1000;
             display: block;
+            cursor: pointer; /* Indicate clickability */
         }
+        #timer-label {
+            font-size: 14px;
+            color: #000;
+            position: absolute;
+            top: calc(50% - 260px); /* Above timer */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            display: none; /* Hidden by default */
+        }
+
         #continue-button {
             padding: 10px 20px;
             font-size: 16px;
@@ -287,9 +302,19 @@ background: repeating-linear-gradient(
             cursor: pointer;
             position: relative;
         }
+        .rejected-icon.marked::after,
+        .selected-icon.marked::after,
+        .neither-icon.marked::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 8px;
+            height: 8px;
+            background-color: #000000; /* Black dot for marking */
+            border-radius: 50%;
+        }
         .tooltip {
-
-            text-align: left;
             position: absolute;
             background-color: #fff;
             color: #000;
@@ -305,16 +330,28 @@ background: repeating-linear-gradient(
         }
         #selected-container .tooltip {
             left: 0;
+            text-align: left !important;
+            color: #000 !important;
         }
         #rejected-container .tooltip {
             left: 0;
+            text-align: left !important;
+            color: #000 !important;
         }
         #neither-container .tooltip {
             right: 0;
+            text-align: right !important;
+            color: #000 !important;
+        }
+        #selected-container .neither-icon .tooltip,
+        #rejected-container .neither-icon .tooltip,
+        #neither-container .neither-icon .tooltip {
+            color: #808080 !important; /* Mid-grey for grey brick tooltips */
         }
         .clickable:hover .tooltip {
             opacity: 1;
         }
+
     </style>
 </head>
 <body>
@@ -322,6 +359,7 @@ background: repeating-linear-gradient(
         <div id="progress-container"></div>
         <div id="selected-container"></div>
         <div id="instruction">Click anywhere to start the game</div>
+        <div id="timer-label">Click to add 60s</div>
         <canvas id="timer-canvas" width="100" height="100" class="hidden"></canvas>
         <div id="card-container" class="hidden">
             <div class="card-wrapper">
@@ -346,6 +384,7 @@ background: repeating-linear-gradient(
         <button id="undo-button">I want to change my mind</button>
         <button id="auto-progress">Auto Progress</button>
         <button id="continue-button">Continue</button>
+        <button id="copy-button" style="display: none; padding: 10px 20px; font-size: 16px; background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 5px; position: absolute; top: calc(50% + 180px); left: 50%; transform: translateX(-50%); z-index: 1200;">Click to Copy Results</button>
         <div id="rejected-container"></div>
         <div id="neither-container"></div>
     </div>
@@ -363,7 +402,7 @@ background: repeating-linear-gradient(
 "I have rarely had a strong person to give me advice or direction when I need it. | I have usually had a strong person to give me advice or direction when I need it.|ed",
 "I worry that the people I love will die soon, even though there is little medical reason for me to worry. | I don't tend to worry or think much about the fact that the people I love will die at some time.|ab",
 "I find myself clinging to people I am close to, because I am afraid they will leave me. | I am pretty secure with the people I am close to, I never think about them leaving me.|ab",
-"I worry that people I feel close to will leave me or abandon me. |I never worry that people I feel close to will leave me or abandon me.e|a",
+"I worry that people I feel close to will leave me or abandon me. |I never worry that people I feel close to will leave me or abandon me.|a",
 "I feel that I lack a stable base of support from someone who cares about me. | I feel that I have a stable base of support from someone who cares about me.|ab",
 "I do not feel that important relationships will last; I expect them to end. | I generally feel that important relationships will last.|ab",
 "I feel addicted to partners who cannot be there for me in a committed way. | I tend to find partners who can be there for me in a committed way.|ab",
@@ -419,7 +458,7 @@ background: repeating-linear-gradient(
 "It is my fault that my parents could not love me enough. | If my parents ever treated me coldly or did not love me enough, that is their responsibility not mine.|ds",
 "I do not let people know the real me. | I try to let people know the real me.|ds",
 "One of my greatest fears is that my defects will be exposed. | I do not worry at all that my defects will be exposed.|ds",
-"I cannot understand how anyone could love me. | I can understand how anyone could love me.|ds",
+"I cannot understand how anyone could love me. | I can understand how someone could love me.|ds",
 "Almost nothing I do at work is as good as other people can do. | Almost everything I do at work is as good as other people can do.|fa",
 "I am incompetent when it comes to achievement. | I am pretty successful when it comes to achievement.|fa",
 "Most other people are more capable than I am at work or in other things I do. | Most other people are not as capable as I am at work or in other things I do.|fa",
@@ -435,7 +474,7 @@ background: repeating-linear-gradient(
 "I believe that other people can take care of me better than I can take care of myself. | I believe that I can take care of myself better than other people can take care of me.|di",
 "I have trouble tackling new tasks outside of work unless I have someone to guide me. | I have no problem tackling new tasks outside of work and seldom need anyone to guide me.|di",
 "I think of myself as a dependent person when it comes to getting through the days and weeks. | I do not think of myself as a dependent person when it comes to getting through the days and weeks.|di",
-"I screw up everything I try, even outside of work. | I usually succed in most things I try, even outside of work.|di",
+"I screw up everything I try, even outside of work. | I usually succeed in most things I try, even outside of work.|di",
 "I am inept in most areas of life. | I am competent in most areas of life.|di",
 "If I trust my own judgment in everyday situations I will make the wrong decision. | If I trust my own judgment in everyday situations I will make the right decision.|di",
 "I lack common sense. | I have common sense.|di",
@@ -451,7 +490,7 @@ background: repeating-linear-gradient(
 "I take great precautions to avoid getting sick or hurt. | I do not take any precautions to avoid getting sick or hurt.|vu",
 "I worry that I am developing a serious illness even though nothing has been diagnosed. | I do not worry or even think about developing a serious illness.|vu",
 "I am a fearful person. | I am not a fearful person.|vu",
-"I worry a lot about the bad things happening in the world like crime or pollution. | I do not worry about the bad things happening in the world like crime or pollution.|vu",
+"I worry a lot about the bad things happening in the world like crime or pollution. | I do not worry much about the bad things happening in the world like crime or pollution.|vu",
 "I feel that I might go crazy. | I never think that I might go crazy.|vu",
 "I often feel that I am going to have an anxiety attack. | I never feel that I am going to have an anxiety attack.|vu",
 "I worry that I might have a heart attack or cancer even though there is little medical reason to. | I never worry or think that I might have a heart attack or cancer until there is medical reason to.|vu",
@@ -501,7 +540,7 @@ background: repeating-linear-gradient(
 "I am too self-conscious to show positive feelings to others (eg, being nice first, showing I care). | I have no problem showing positive feelings to others (eg, being nice first, showing I care).|ei",
 "I find it embarrassing to express my feelings to others. | I find it enjoyable to express my feelings to others.|ei",
 "I find it hard to be warm or to start fun conversations without thinking about it first. | I find it easy to be warm or to start fun conversations without thinking about it first.|ei",
-"I control myself so much that people think I am unemotional. | I do have to try  to control myself so much that people think I am unemotional.|ei",
+"I control myself so much that people think I am unemotional. | I do not have to try  to control myself so much that people think I am unemotional.|ei",
 "People see me as uptight and think that I do not show my feelings. | People do not see me as uptight and know I am happy to show my feelings.|ei",
 "I must be the best at most of what I do; I cannot accept second best. | I am happy to do a reasonable job; I do not need to be best all the time.|us",
 "I strive to keep almost everything in perfect order. | I am not a perfectionist|us",
@@ -586,23 +625,23 @@ background: repeating-linear-gradient(
 "I am a bad person who deserves to be punished | I am a not bad person and do not deserve to be punished.|pu"
         ];
         const categoryData = [
-            {group: "DAR", category: "ds", descriptor: "Must hide the real me", total: 15},
-            {group: "DAR", category: "ed", descriptor: "Want to be wanted", total: 9},
+            {group: "DAR", category: "ds", descriptor: "I tend to hide the real me", total: 15},
+            {group: "DAR", category: "ed", descriptor: "I want to be wanted", total: 9},
             {group: "DAR", category: "ei", descriptor: "My feelings are dangerous", total: 9},
-            {group: "DAR", category: "ma", descriptor: "Cannot trust anyone", total: 17},
-            {group: "DAR", category: "si", descriptor: "On the outside", total: 10},
-            {group: "ERS", category: "as", descriptor: "Being liked matters more than anything", total: 14},
+            {group: "DAR", category: "ma", descriptor: "Trusting people is full of risk", total: 17},
+            {group: "DAR", category: "si", descriptor: "I often feel on the outside", total: 10},
+            {group: "ERS", category: "as", descriptor: "Being liked is extremely important", total: 14},
             {group: "ERS", category: "np", descriptor: "Success is short and temporary", total: 11},
             {group: "ERS", category: "pu", descriptor: "Forgiveness is weak, consequences must follow", total: 14},
             {group: "ERS", category: "ss", descriptor: "My time and feelings matter less", total: 17},
             {group: "ERS", category: "us", descriptor: "Only perfection is good enough", total: 16},
-            {group: "IAP", category: "ab", descriptor: "Left out or let down", total: 17},
-            {group: "IAP", category: "di", descriptor: "Without others I am nothing", total: 15},
-            {group: "IAP", category: "em", descriptor: "Bound up in others lives", total: 11},
-            {group: "IAP", category: "fa", descriptor: "I nearly always fail", total: 9},
+            {group: "IAP", category: "ab", descriptor: "I'm often left out or let down", total: 17},
+            {group: "IAP", category: "di", descriptor: "I am very dependent on others", total: 15},
+            {group: "IAP", category: "em", descriptor: "I'm very bound up in others lives", total: 11},
+            {group: "IAP", category: "fa", descriptor: "I fail much more than I succeed", total: 9},
             {group: "IAP", category: "sb", descriptor: "Others have more power than I do", total: 10},
             {group: "IAP", category: "vh", descriptor: "Disaster is just around the corner", total: 12},
-            {group: "IL", category: "et", descriptor: "I know best so do it", total: 11},
+            {group: "IL", category: "et", descriptor: "I know best so just do it", total: 11},
             {group: "IL", category: "is", descriptor: "What I want right now takes over", total: 15}
         ];
         const questionsByCategory = {};
@@ -657,27 +696,27 @@ background: repeating-linear-gradient(
             icon.dataset.category = allQuestions[i].category;
             progressContainer.appendChild(icon);
         }
-        function drawTimer(seconds) {
-            ctx.clearRect(0, 0, timerCanvas.width, timerCanvas.height);
-            const centerX = timerCanvas.width / 2;
-            const centerY = timerCanvas.height / 2;
-            const radius = 40;
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-            ctx.fillStyle = '#ddd';
-            ctx.fill();
-            ctx.beginPath();
-            const progress = seconds / 120;
-            ctx.arc(centerX, centerY, radius, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * (1 - progress), false);
-            ctx.strokeStyle = '#4CAF50';
-            ctx.lineWidth = 10;
-            ctx.stroke();
-            ctx.font = '16px Arial';
-            ctx.fillStyle = '#000';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(`${seconds}s`, centerX, centerY);
-        }
+function drawTimer(seconds, totalTime = 10) {
+    ctx.clearRect(0, 0, timerCanvas.width, timerCanvas.height);
+    const centerX = timerCanvas.width / 2;
+    const centerY = timerCanvas.height / 2;
+    const radius = 40;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.fillStyle = '#ddd';
+    ctx.fill();
+    ctx.beginPath();
+    const progress = seconds / totalTime;
+    ctx.arc(centerX, centerY, radius, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * (1 - progress), false);
+    ctx.strokeStyle = updatePhase === 'red' ? '#ec5f02' : updatePhase === 'green' ? '#b301b3' : '#D3D3D3'; /* Orange, Purple, Grey */
+    ctx.lineWidth = 10;
+    ctx.stroke();
+    ctx.font = '16px Arial';
+    ctx.fillStyle = '#000';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`${seconds}s`, centerX, centerY);
+}
         function getNextSet() {
             const availableQuestions = [];
             for (const category in remainingQuestionsByCategory) {
@@ -728,36 +767,45 @@ background: repeating-linear-gradient(
             }
             return set;
         }
-        function animateCardToContainer(card, containerId, iconClass, text, opposite, category, callback) {
-            console.log(`animateCardToContainer: Adding ${iconClass} to ${containerId}, text=${text}, category=${category}`);
-            const initialRect = card.getBoundingClientRect();
-            const frontClone = card.querySelector('.front').cloneNode(true);
-            frontClone.className = 'temp-icon';
-            frontClone.style.left = initialRect.left + 'px';
-            frontClone.style.top = initialRect.top + 'px';
-            frontClone.style.width = initialRect.width + 'px';
-            frontClone.style.height = initialRect.height + 'px';
-            frontClone.style.opacity = '1';
-            document.body.appendChild(frontClone);
-            const actualIcon = document.createElement('div');
-            actualIcon.className = iconClass;
-            actualIcon.dataset.tooltip = iconClass === 'rejected-icon' ? opposite : text;
-            actualIcon.dataset.opposite = opposite;
-            actualIcon.dataset.category = category;
-            actualIcon.dataset.text = text;
-            actualIcon.style.visibility = 'hidden';
-            const container = document.getElementById(containerId);
-            container.appendChild(actualIcon);
-            requestAnimationFrame(() => {
-                const targetRect = actualIcon.getBoundingClientRect();
-                requestAnimationFrame(() => {
-                    frontClone.style.left = targetRect.left + 'px';
-                    frontClone.style.top = targetRect.top + 'px';
-                    frontClone.style.width = targetRect.width + 'px';
-                    frontClone.style.height = targetRect.height + 'px';
-                    frontClone.style.opacity = '0';
-                });
-            });
+function animateCardToContainer(card, containerId, iconClass, text, opposite, category, callback) {
+    console.log(`animateCardToContainer: Adding ${iconClass} to ${containerId}, text=${text}, category=${category}`);
+    const initialRect = card.getBoundingClientRect();
+    const frontClone = card.querySelector('.front').cloneNode(true);
+    frontClone.className = 'temp-icon';
+    frontClone.style.left = initialRect.left + 'px';
+    frontClone.style.top = initialRect.top + 'px';
+    frontClone.style.width = initialRect.width + 'px';
+    frontClone.style.height = initialRect.height + 'px';
+    frontClone.style.opacity = '1';
+    document.body.appendChild(frontClone);
+    const actualIcon = document.createElement('div');
+    actualIcon.className = iconClass;
+    actualIcon.dataset.tooltip = iconClass === 'rejected-icon' ? opposite : text;
+    actualIcon.dataset.opposite = opposite;
+    actualIcon.dataset.category = category;
+    actualIcon.dataset.text = text;
+    actualIcon.style.visibility = 'hidden';
+    const container = document.getElementById(containerId);
+    container.appendChild(actualIcon);
+    actualIcon.addEventListener('click', () => {
+        actualIcon.classList.toggle('marked');
+    }, { once: false });
+    requestAnimationFrame(() => {
+        const targetRect = actualIcon.getBoundingClientRect();
+        requestAnimationFrame(() => {
+            frontClone.style.left = targetRect.left + 'px';
+            frontClone.style.top = targetRect.top + 'px';
+            frontClone.style.width = targetRect.width + 'px';
+            frontClone.style.height = targetRect.height + 'px';
+            frontClone.style.opacity = '0';
+        });
+    });
+    frontClone.addEventListener('transitionend', () => {
+        document.body.removeChild(frontClone);
+        actualIcon.style.visibility = 'visible';
+        console.log(`animateCardToContainer: ${iconClass} made visible in ${containerId}`);
+        if (callback) callback();
+    }, { once: true });
             frontClone.addEventListener('transitionend', () => {
                 document.body.removeChild(frontClone);
                 actualIcon.style.visibility = 'visible';
@@ -765,101 +813,118 @@ background: repeating-linear-gradient(
                 if (callback) callback();
             }, { once: true });
         }
-        function addNeitherIcon(text, opposite, category) {
-            const icon = document.createElement('div');
-            icon.className = 'neither-icon';
-            icon.dataset.tooltip = text;
-            icon.dataset.opposite = opposite;
-            icon.dataset.category = category;
-            icon.dataset.text = text;
-            document.getElementById('neither-container').appendChild(icon);
-            allSelections.push({ text, category, status: 'grey' });
+function addNeitherIcon(text, opposite, category) {
+    const icon = document.createElement('div');
+    icon.className = 'neither-icon';
+    icon.dataset.tooltip = text;
+    icon.dataset.opposite = opposite;
+    icon.dataset.category = category;
+    icon.dataset.text = text;
+    icon.addEventListener('click', () => {
+        icon.classList.toggle('marked');
+    });
+    document.getElementById('neither-container').appendChild(icon);
+    allSelections.push({ text, category, status: 'grey' });
+}
+function startUpdatePhase() {
+    console.log('startUpdatePhase called');
+    document.getElementById('game-container').style.display = 'block';
+    document.getElementById('card-container').style.display = 'none';
+    document.getElementById('undo-button').style.display = 'none';
+    document.getElementById('auto-progress').style.display = 'none';
+    document.getElementById('results-container').style.display = 'none';
+    updatePhase = 'red';
+    instruction.innerText = "You have completed the first phase of the game.\nYou likely had to choose some purple cards that would be better orange or grey (not chosen), and maybe some orange cards that you would prefer purple.\n\nThe next section lets you change some of those cards.\n\nWhen you click below, a 2 minute timer will appear.\n\n You can now hover your mouse over any orange card, you will see the OPPOSITE statement to the statment you rejected. You can click to swap that card to purple or to grey.\n\nYou can click as many bricks as you like during the 2 minute period.\nPlease click on Continue when you are ready.";
+    instruction.style.display = 'block';
+    continueButton.style.display = 'block';
+    continueButton.focus();
+    setTimeout(() => {
+        console.log('Continue button display:', continueButton.style.display);
+        instruction.offsetHeight;
+        continueButton.offsetHeight;
+    }, 300);
+}
+function updateBricks(containerId, currentStatus) {
+    console.log(`updateBricks called for ${containerId} with status ${currentStatus}`);
+    const container = document.getElementById(containerId);
+    const brickClasses = ['rejected-icon', 'selected-icon', 'neither-icon'];
+    const bricks = container.querySelectorAll(brickClasses.map(cls => `.${cls}`).join(','));
+    console.log(`Found ${bricks.length} bricks in ${containerId} with classes ${brickClasses.join(', ')}`);
+    console.log('allSelections before update:', JSON.stringify(allSelections));
+    if (bricks.length === 0) {
+        console.log(`No bricks found in ${containerId}. Checking container contents:`, container.innerHTML);
+    }
+    let lastClickTime = 0;
+    const debounceDelay = 200;
+    bricks.forEach((brick, index) => {
+        brick.classList.add('clickable');
+        // Remove existing tooltip if any
+        const existingTooltip = brick.querySelector('.tooltip');
+        if (existingTooltip) {
+            brick.removeChild(existingTooltip);
         }
-        function startUpdatePhase() {
-            console.log('startUpdatePhase called');
-            document.getElementById('game-container').style.display = 'block';
-            document.getElementById('card-container').style.display = 'none';
-            document.getElementById('undo-button').style.display = 'none';
-            document.getElementById('auto-progress').style.display = 'none';
-            document.getElementById('results-container').style.display = 'none';
-            updatePhase = 'red';
-            instruction.innerText = "You have completed the first phase of the game.\nYou likely had to choose some purple cards that would be better orange or grey (not chosen), and maybe some orange cards that you would prefer purple.\n\nThe next section lets you change some of those cards.\n\nWhen you click below, a 2 minute timer will appear.\n\n You can now hover your mouse over any orange card, you will see the OPPOSITE statement to the statment you rejected.  You can click to swap that card to purple or to grey.\n\nYou can click as many bricks as you like during the 2 minute period.\nPlease click on Continue when you are ready.";
-            instruction.style.display = 'block';
-            continueButton.style.display = 'block';
-            continueButton.focus();
-            setTimeout(() => {
-                console.log('Continue button display:', continueButton.style.display);
-                instruction.offsetHeight;
-                continueButton.offsetHeight;
-            }, 300);
-        }
-        function updateBricks(containerId, currentStatus) {
-            console.log(`updateBricks called for ${containerId} with status ${currentStatus}`);
-            const container = document.getElementById(containerId);
-            const brickClasses = ['rejected-icon', 'selected-icon', 'neither-icon'];
-            const bricks = container.querySelectorAll(brickClasses.map(cls => `.${cls}`).join(','));
-            console.log(`Found ${bricks.length} bricks in ${containerId} with classes ${brickClasses.join(', ')}`);
-            console.log('allSelections before update:', JSON.stringify(allSelections));
-            if (bricks.length === 0) {
-                console.log(`No bricks found in ${containerId}. Checking container contents:`, container.innerHTML);
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltip';
+        tooltip.textContent = brick.dataset.tooltip;
+        brick.appendChild(tooltip);
+        const handler = () => {
+            const now = Date.now();
+            if (now - lastClickTime < debounceDelay) {
+                console.log(`Click on brick ${index} ignored: too soon after last click`);
+                return;
             }
-            let lastClickTime = 0;
-            const debounceDelay = 200;
-            bricks.forEach((brick, index) => {
-                brick.classList.add('clickable');
-                const tooltip = document.createElement('div');
-                tooltip.className = 'tooltip';
-                tooltip.textContent = brick.dataset.tooltip;
-                brick.appendChild(tooltip);
-                const handler = () => {
-                    const now = Date.now();
-                    if (now - lastClickTime < debounceDelay) {
-                        console.log(`Click on brick ${index} ignored: too soon after last click`);
-                        return;
-                    }
-                    lastClickTime = now;
-                    const text = brick.dataset.text;
-                    const opposite = brick.dataset.opposite;
-                    const category = brick.dataset.category;
-                    const currentBrickStatus = brick.classList.contains('rejected-icon') ? 'red' :
-                                              brick.classList.contains('selected-icon') ? 'green' : 'grey';
-                    console.log(`Brick ${index} clicked: text=${text}, currentBrickStatus=${currentBrickStatus}, category=${category}`);
-                    const selection = allSelections.find(sel => sel.text === text && sel.status === currentBrickStatus);
-                    if (selection) {
-                        let newStatus;
-                        let newClass;
-                        if (currentBrickStatus === 'red') {
-                            newStatus = 'grey';
-                            newClass = 'neither-icon';
-                            redSelections[category] = (redSelections[category] || 0) - 1;
-                            brick.dataset.tooltip = text;
-                        } else if (currentBrickStatus === 'grey') {
-                            newStatus = 'green';
-                            newClass = 'selected-icon';
-                            greenSelections[category] = (greenSelections[category] || 0) + 1;
-                            brick.dataset.tooltip = text;
-                        } else if (currentBrickStatus === 'green') {
-                            newStatus = 'red';
-                            newClass = 'rejected-icon';
-                            greenSelections[category] = (greenSelections[category] || 0) - 1;
-                            redSelections[category] = (redSelections[category] || 0) + 1;
-                            brick.dataset.tooltip = opposite;
-                        }
-                        console.log(`Updating selection: ${text} from ${selection.status} to ${newStatus}`);
-                        selection.status = newStatus;
-                        brick.className = `${newClass} clickable`;
-                        tooltip.textContent = brick.dataset.tooltip;
-                        console.log(`Brick ${index} updated in place to ${newClass}, text=${text}`);
-                        console.log('allSelections after update:', JSON.stringify(allSelections));
-                    } else {
-                        console.log(`No matching selection found for text=${text}, status=${currentBrickStatus}`);
-                        console.log('allSelections:', JSON.stringify(allSelections));
-                    }
-                };
-                brick.removeEventListener('click', brick.onclick);
-                brick.addEventListener('click', handler);
-            });
-        }
+            lastClickTime = now;
+            const text = brick.dataset.text;
+            const opposite = brick.dataset.opposite;
+            const category = brick.dataset.category;
+            const currentBrickStatus = brick.classList.contains('rejected-icon') ? 'red' :
+                                      brick.classList.contains('selected-icon') ? 'green' : 'grey';
+            console.log(`Brick ${index} clicked: text=${text}, currentBrickStatus=${currentBrickStatus}, category=${category}`);
+            const selection = allSelections.find(sel => sel.text === text && sel.status === currentBrickStatus);
+            if (selection) {
+                let newStatus;
+                let newClass;
+                if (currentBrickStatus === 'red') {
+                    newStatus = 'grey';
+                    newClass = 'neither-icon';
+                    redSelections[category] = (redSelections[category] || 0) - 1;
+                    brick.dataset.tooltip = text;
+                } else if (currentBrickStatus === 'grey') {
+                    newStatus = 'green';
+                    newClass = 'selected-icon';
+                    greenSelections[category] = (greenSelections[category] || 0) + 1;
+                    brick.dataset.tooltip = text;
+                } else if (currentBrickStatus === 'green') {
+                    newStatus = 'red';
+                    newClass = 'rejected-icon';
+                    greenSelections[category] = (greenSelections[category] || 0) - 1;
+                    redSelections[category] = (redSelections[category] || 0) + 1;
+                    brick.dataset.tooltip = opposite;
+                }
+                console.log(`Updating selection: ${text} from ${selection.status} to ${newStatus}`);
+                selection.status = newStatus;
+                brick.className = `${newClass} clickable`;
+                brick.classList.remove('marked'); // Remove dot on click
+                // Remove existing tooltip before creating a new one
+                const oldTooltip = brick.querySelector('.tooltip');
+                if (oldTooltip) {
+                    brick.removeChild(oldTooltip);
+                }
+                const newTooltip = document.createElement('div');
+                newTooltip.className = 'tooltip';
+                newTooltip.textContent = brick.dataset.tooltip;
+                brick.appendChild(newTooltip);
+                console.log(`Brick ${index} updated in place to ${newClass}, text=${text}`);
+                console.log('allSelections after update:', JSON.stringify(allSelections));
+            } else {
+                console.log(`No matching selection found for text=${text}, status=${currentBrickStatus}`);
+                console.log('allSelections:', JSON.stringify(allSelections));
+            }
+        };
+        brick.removeEventListener('click', brick.onclick);
+        brick.addEventListener('click', handler);
+    });
+}
         function endUpdatePhase(currentPhase) {
             console.log('endUpdatePhase called with phase:', currentPhase);
             clearInterval(timerInterval);
@@ -892,61 +957,149 @@ background: repeating-linear-gradient(
             console.log(`Calling updateBricks for ${nextContainer} with status ${nextPhase}`);
             updateBricks(nextContainer, nextPhase);
         }
-        continueButton.addEventListener('click', () => {
-            if (!updatePhase) return;
-            if (timerInterval) clearInterval(timerInterval);
-            continueButton.style.display = 'none';
-            timerCanvas.classList.remove('hidden');
-            timerCanvas.style.display = 'block';
-            const timeLimit = 120;
-            let timeLeft = timeLimit;
-            drawTimer(timeLeft);
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                if (timeLeft >= 0) {
-                    drawTimer(timeLeft);
-                } else {
-                    clearInterval(timerInterval);
-                    timerInterval = null;
-                    endUpdatePhase(updatePhase);
-                }
-            }, 1000);
-            if (updatePhase === 'red') {
-                updateBricks('rejected-container', 'red');
-            } else if (updatePhase === 'green') {
-                updateBricks('selected-container', 'green');
-            } else if (updatePhase === 'grey') {
-                updateBricks('neither-container', 'grey');
-            }
-        });
-        function displayResults() {
-            const resultsContainer = document.getElementById('results-container');
-            resultsContainer.style.display = 'flex';
-            resultsContainer.innerHTML = '<h2>Results</h2><pre></pre>';
-            const groupColors = {
-                DAR: '#0000FF',
-                ERS: '#FF00FF',
-                IAP: '#800080',
-                IL: '#FF0000'
-            };
-            const maxDescriptorLength = Math.max(...categoryData.map(({descriptor}) => descriptor.length));
-            const sortedByGroup = categoryData.reduce((acc, {group, category, descriptor, total}) => {
-                const greenCount = allSelections.filter(sel => sel.category === category && sel.status === 'green').length;
-                const percentage = Math.round((greenCount / total) * 100);
-                if (!acc[group]) acc[group] = [];
-                acc[group].push({category, descriptor, percentage, total});
-                return acc;
-            }, {DAR: [], ERS: [], IAP: [], IL: []});
-            const barChart = ['DAR', 'ERS', 'IAP', 'IL'].flatMap(group => {
-                const categories = sortedByGroup[group].sort((a, b) => b.percentage - a.percentage);
-                return categories.map(({descriptor, percentage}) => {
-                    const stars = '*'.repeat(Math.round(percentage / 10));
-                    const paddedDescriptor = descriptor.padEnd(maxDescriptorLength, ' ');
-                    return `<div style="color: ${groupColors[group]}">${paddedDescriptor}: ${stars} (${percentage}%)</div>`;
-                });
-            }).join('');
-            resultsContainer.querySelector('pre').innerHTML = barChart;
+function timerClickHandler(timeLeft, timeLimit, drawTimer) {
+    timeLeft.value += 60;
+    timeLimit.value += 60;
+    drawTimer(timeLeft.value, timeLimit.value);
+}
+continueButton.addEventListener('click', () => {
+    if (!updatePhase) return;
+    if (timerInterval) clearInterval(timerInterval);
+    continueButton.style.display = 'none';
+    timerCanvas.classList.remove('hidden');
+    timerCanvas.style.display = 'block';
+    document.getElementById('timer-label').style.display = 'block';
+    document.getElementById('instruction').style.display = 'block';
+    let timeLimit = { value: 120 };
+    let timeLeft = { value: timeLimit.value };
+    drawTimer(timeLeft.value, timeLimit.value);
+    timerInterval = setInterval(() => {
+        timeLeft.value--;
+        if (timeLeft.value >= 0) {
+            drawTimer(timeLeft.value, timeLimit.value);
+        } else {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            timerCanvas.removeEventListener('click', currentHandler);
+            document.getElementById('timer-label').style.display = 'none';
+            document.getElementById('instruction').style.display = 'none';
+            endUpdatePhase(updatePhase);
         }
+    }, 1000);
+    const currentHandler = () => timerClickHandler(timeLeft, timeLimit, drawTimer);
+    timerCanvas.removeEventListener('click', currentHandler);
+    timerCanvas.addEventListener('click', currentHandler);
+    if (updatePhase === 'red') {
+        updateBricks('rejected-container', 'red');
+    } else if (updatePhase === 'green') {
+        updateBricks('selected-container', 'green');
+    } else if (updatePhase === 'grey') {
+        updateBricks('neither-container', 'grey');
+    }
+});
+function bigIntToBase(n, base, digits) {
+    if (n === 0n) return digits[0].repeat(63);
+    let result = [];
+    let temp = n;
+    for (let i = 0; i < 63; i++) {
+        const digit = Number(temp % base);
+        console.log(`Digit ${i}: ${digit}, Char: ${digits[digit]}`);
+        result.push(digits[digit]);
+        temp = temp / base;
+    }
+    return result.reverse().join('');
+}
+
+function displayResults() {
+    const resultsContainer = document.getElementById('results-container');
+    resultsContainer.style.display = 'flex';
+    resultsContainer.innerHTML = '<h2>Results</h2><pre></pre>';
+    const copyButton = document.getElementById('copy-button');
+    copyButton.style.display = 'block';
+    const groupColors = {
+        DAR: '#0000FF',
+        ERS: '#FF00FF',
+        IAP: '#800080',
+        IL: '#FF0000'
+    };
+    const base58Digits = '23456789ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    const maxDescriptorLength = Math.max(...categoryData.map(({descriptor}) => descriptor.length));
+    const sortedByGroup = categoryData.reduce((acc, {group, category, descriptor, total}) => {
+        const greenCount = allSelections.filter(sel => sel.category === category && sel.status === 'green').length;
+        const percentage = Math.round((greenCount / total) * 100);
+        if (!acc[group]) acc[group] = [];
+        acc[group].push({category, descriptor, percentage, total});
+        return acc;
+    }, {DAR: [], ERS: [], IAP: [], IL: []});
+    const barChart = ['DAR', 'ERS', 'IAP', 'IL'].flatMap(group => {
+        const categories = sortedByGroup[group].sort((a, b) => b.percentage - a.percentage);
+        return categories.map(({descriptor, percentage}) => {
+            const stars = '*'.repeat(Math.round(percentage / 10));
+            const paddedDescriptor = descriptor.padEnd(maxDescriptorLength, ' ');
+            return `${paddedDescriptor}: ${stars} (${percentage}%)`;
+        });
+    }).join('\n');
+    const scores = questionsData.map((line, index) => {
+        const [question, , category] = line.split('|');
+        const trimmedQuestion = question.trim();
+        const selection = allSelections.find(sel => sel.text.trim() === trimmedQuestion && sel.category === category);
+        const score = selection ? (selection.status === 'red' ? 1 : selection.status === 'grey' ? 2 : 3) : 2;
+        console.log(`Encode Question ${index + 1}: "${trimmedQuestion}", Category: ${category}, Selection:`, selection, `Score: ${score}`);
+        return score;
+    });
+    console.log('Encoded scores:', scores);
+    let number = BigInt(0);
+    for (let i = 0; i < scores.length; i++) {
+        number = number * BigInt(3) + BigInt(scores[i] - 1);
+    }
+    console.log('Input number to bigIntToBase:', number);
+    const encoded = bigIntToBase(number, BigInt(58), base58Digits);
+    if (encoded.length !== 63) {
+        console.error('Encoded string length invalid:', encoded.length);
+        resultsContainer.querySelector('pre').innerHTML = 'Error: Invalid encoded string length';
+        return;
+    }
+    for (let char of encoded) {
+        if (base58Digits.indexOf(char) === -1) {
+            console.error('Invalid character in encoded string:', char);
+            resultsContainer.querySelector('pre').innerHTML = 'Error: Invalid character in encoded string';
+            return;
+        }
+    }
+    let sum = 0n;
+    for (let char of encoded) {
+        sum += BigInt(base58Digits.indexOf(char));
+    }
+    const checksum = Number(sum % BigInt(58));
+    console.log('Encoded checksum:', checksum, 'Checksum character:', base58Digits[checksum]);
+    const resultString = encoded + base58Digits[checksum];
+    console.log('Encoded resultString:', resultString);
+    if (resultString.length !== 64) {
+        console.error('Final result string length invalid:', resultString.length);
+        resultsContainer.querySelector('pre').innerHTML = 'Error: Invalid final result string length';
+        return;
+    }
+    const words = [];
+    for (let i = 0; i < 64; i += 8) {
+        words.push(resultString.slice(i, i + 8));
+    }
+    if (words.length !== 8 || words.some(s => s.length !== 8)) {
+        console.error('Formatting failed:', { words });
+        resultsContainer.querySelector('pre').innerHTML = 'Error: Formatting failed';
+        return;
+    }
+    const formattedResult = words.join(' ');
+    const outputText = barChart + '\n\nResult Sequence:\n' + formattedResult;
+    resultsContainer.querySelector('pre').innerHTML = outputText;
+    copyButton.onclick = () => {
+        navigator.clipboard.writeText(outputText).then(() => {
+            alert('Results copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy results:', err);
+            alert('Failed to copy results.');
+        });
+    };
+}
         function displaySet() {
             if (allSelections.length >= 231) {
                 const availableQuestions = [];
@@ -1032,12 +1185,38 @@ background: repeating-linear-gradient(
             instruction.innerText = "Choose which option is LEAST like you";
             document.getElementById('card-container').classList.add('reject-phase');
         }
-        document.body.addEventListener('click', startGame, { once: true });
+
+        document.getElementById('continue-button').addEventListener('click', startGame, { once: true });
         function startGame() {
-            continueButton.style.display = 'none';
-            document.getElementById('card-container').classList.remove('hidden');
-            displaySet();
+            instruction.innerText = 
+            `The first part of this session is a card game\n
+            You will be shown 3 statements, one on each card
+            You should first choose the card most NOT like you, 
+            then choose the card that is most LIKE you.\n
+            There will probably be some sets where maybe all the cards are like you or all are not. Just make a choice.\n 
+            Your card will go into the group of cards for that choice.
+            When the card is in its group, you can click on it to mark it for later review. A little black mark will appear on the card.\n
+            When you are ready to start click continue`;
+            continueButton.style.display = 'block';
+            continueButton.focus();
+            continueButton.addEventListener('click', () => {
+                continueButton.style.display = 'none';
+                document.getElementById('card-container').classList.remove('hidden');
+                displaySet();
+            }, { once: true });
         }
+        instruction.innerText = 
+        `You are about to go through a game experience that will ask you some questions you may find very sensitive.\n
+        This session is totally anonymous, your name is not recorded and no-one can see what you enter.\n
+        At the end of the session you will get a results summary.
+        This should give you insight into some of your deeper motivations and potential blockers to your learning.\n
+        This can be very useful for your coach but it is up to you to forward to them if you would like at the end.\n
+        If you are happy to send to your coach, you can copy and paste your results summary at the end into an email and send it to them.\n
+        The full session will take 20 to 30 minutes\n\n
+        When you are ready to progress click continue`;
+        continueButton.style.display = 'block';
+        continueButton.focus();
+
         function undoRejection() {
             if (rejectedCard && selectionStep === 2) {
                 rejectedCard.style.visibility = 'visible';
