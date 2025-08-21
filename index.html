@@ -23,33 +23,43 @@
             flex-direction: column;
             align-items: center;
         }
-        #instruction {
-            font-size: 18px;
-            font-weight: bold;
-            max-width: 600px;
-            text-align: center;
-            white-space: pre-wrap;
-            background-color: #eeefdb;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            position: absolute;
-            top: -15%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1000;
-        }
-        #card-container {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-left: 200px;
-        }
-        .card-wrapper {
-            width: 200px;
-            height: 300px;
-            position: relative;
-        }
+#instruction {
+    font-size: 18px;
+    font-weight: bold;
+    max-width: 600px;
+    text-align: center;
+    white-space: pre-wrap;
+    background-color: transparent;
+    padding: 0;
+    position: absolute;
+    top: -15%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+}
+#card-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    position: relative;
+    left: 140px; /* Shift 1.5 card widths (240px) to the right toward grey bricks */
+}
+.card-wrapper {
+    width: 160px; /* Smaller width */
+    height: 240px; /* Smaller height */
+    position: relative;
+}
+.front {
+    background: white;
+    transform: rotateY(180deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px; /* Adjusted font size for smaller cards */
+    text-align: center;
+    padding: 15px;
+    box-sizing: border-box;
+}
         .card {
             position: absolute;
             top: 0;
@@ -89,11 +99,11 @@ background: repeating-linear-gradient(
             padding: 20px;
             box-sizing: border-box;
         }
-        #card-container.reject-phase .front {
-            background-color: #f1bb7e;
-        }
-        #card-container.select-phase .front {
-            background-color: #f3d8ef;
+#card-container.reject-phase .front {
+    background-color: #ff9999; /* Light red */
+}
+#card-container.select-phase .front {
+    background-color: #abcfab; /* Light green */
         }
         .flipped .back {
             transform: rotateY(180deg);
@@ -114,59 +124,58 @@ background: repeating-linear-gradient(
         .selected {
             border: 4px solid green;
         }
-        #progress-container {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            display: grid;
-            grid-template-columns: repeat(12, 42px);
-            gap: 2px;
-            width: 518px;
-            background-color: transparent;
-        }
-        #selected-container {
-            position: absolute;
-            top: calc(50% - 277px);
-            left: 10px;
-            width: 550px;
-            max-height: 96px;
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            justify-content: flex-start;
-            align-content: flex-start;
-            gap: 4px;
-        }
-        #rejected-container {
-            position: absolute;
-            left: 10px;
-            top: calc(50% + 247px);
-            width: 950px;
-            max-height: 96px;
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            justify-content: flex-start;
-            align-content: flex-start;
-            gap: 4px;
-            z-index: 500;
-        }
-        #neither-container {
-            position: absolute;
-            right: 10px;
-            top: calc(50% - 277px);
-            width: 220px;
-            height: auto;
-            display: flex;
-            flex-direction: row-reverse;
-            flex-wrap: wrap;
-            justify-content: flex-start;
-            align-content: flex-start;
-            gap: 4px;
-            visibility: visible;
-            overflow: visible;
-        }
+#progress-container {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: none; /* Hidden initially */
+    grid-template-columns: repeat(12, 42px);
+    gap: 2px;
+    width: 518px;
+    background-color: transparent;
+}
+#selected-container {
+    position: absolute;
+    top: calc(50% - 277px);
+    left: 10px;
+    width: 550px;
+    max-height: 96px;
+    display: none; /* Hidden initially */
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: flex-start;
+    gap: 4px;
+}
+#rejected-container {
+    position: absolute;
+    left: 10px;
+    top: calc(50% + 247px);
+    width: 950px;
+    max-height: 96px;
+    display: none; /* Hidden initially */
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: flex-start;
+    gap: 4px;
+    z-index: 500;
+}
+#neither-container {
+    position: absolute;
+    right: 10px;
+    top: calc(50% - 277px);
+    width: 220px;
+    height: auto;
+    display: none; /* Hidden initially */
+    flex-direction: row-reverse;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: flex-start;
+    gap: 4px;
+    overflow: visible;
+}
         .progress-icon {
             width: 40px;
             height: 20px;
@@ -175,37 +184,36 @@ background: repeating-linear-gradient(
             position: relative;
             cursor: pointer;
         }
-        .progress-icon:hover::after {
-            content: attr(title);
-            position: absolute;
-            background-color: #333;
-            color: white;
-            padding: 5px;
-            border-radius: 5px;
-            top: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: nowrap;
-            z-index: 1000;
-        }
-        .selected-icon {
-            width: 40px;
-            height: 20px;
-            background-color: #b301b3;
-            border-radius: 4px;
-            margin: 2px;
-            box-sizing: border-box;
-            position: relative; /* Ensure dot positions relative to brick */
-        }
-        .rejected-icon {
-            width: 40px;
-            height: 20px;
-            background-color: #ec5f02;
-            margin: 2px;
-            border-radius: 4px;
-            box-sizing: border-box;
-            position: relative; /* Ensure dot positions relative to brick */
-        }
+.progress-icon:hover::after {
+    content: attr(title);
+    position: absolute;
+    background-color: #333;
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+    top: -30px;
+    left: 0; /* Left-justified for blue bricks */
+    white-space: nowrap;
+    z-index: 1000;
+}
+.selected-icon {
+    width: 40px;
+    height: 20px;
+    background-color: #abcfab; /* Light green */
+    border-radius: 4px;
+    margin: 2px;
+    box-sizing: border-box;
+    position: relative; /* Ensure dot positions relative to brick */
+}
+.rejected-icon {
+    width: 40px;
+    height: 20px;
+    background-color: #ff9999; /* Light red */
+    margin: 2px;
+    border-radius: 4px;
+    box-sizing: border-box;
+    position: relative; /* Ensure dot positions relative to brick */
+}
         .neither-icon {
             width: 40px;
             height: 20px;
@@ -314,43 +322,36 @@ background: repeating-linear-gradient(
             background-color: #000000; /* Black dot for marking */
             border-radius: 50%;
         }
-        .tooltip {
-            position: absolute;
-            background-color: #fff;
-            color: #000;
-            border: 1px solid #000;
-            padding: 5px;
-            border-radius: 5px;
-            top: -35px;
-            z-index: 2000;
-            opacity: 0;
-            transition: opacity 0.2s ease-in 0.2s;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-        #selected-container .tooltip {
-            left: 0;
-            text-align: left !important;
-            color: #000 !important;
-        }
-        #rejected-container .tooltip {
-            left: 0;
-            text-align: left !important;
-            color: #000 !important;
-        }
-        #neither-container .tooltip {
-            right: 0;
-            text-align: right !important;
-            color: #000 !important;
-        }
-        #selected-container .neither-icon .tooltip,
-        #rejected-container .neither-icon .tooltip,
-        #neither-container .neither-icon .tooltip {
-            color: #808080 !important; /* Mid-grey for grey brick tooltips */
-        }
-        .clickable:hover .tooltip {
-            opacity: 1;
-        }
+.tooltip {
+    position: absolute;
+    background-color: #fff;
+    color: #000;
+    border: 1px solid #000;
+    padding: 5px;
+    border-radius: 5px;
+    top: -30px; /* Aligned with blue brick tooltip */
+    z-index: 2000;
+    opacity: 0;
+    transition: opacity 0.2s ease-in 0.2s;
+    pointer-events: none;
+    white-space: nowrap;
+}
+.rejected-icon:hover .tooltip,
+.selected-icon:hover .tooltip {
+    left: 0; /* Left-justified for red and green bricks */
+    text-align: left;
+    opacity: 1;
+}
+.neither-icon:hover .tooltip {
+    right: 0; /* Right-justified for grey bricks */
+    text-align: right;
+    opacity: 1;
+}
+#selected-container .neither-icon .tooltip,
+#rejected-container .neither-icon .tooltip,
+#neither-container .neither-icon .tooltip {
+    color: #808080 !important; /* Mid-grey for grey brick tooltips */
+}
 
     </style>
 </head>
@@ -361,28 +362,14 @@ background: repeating-linear-gradient(
         <div id="instruction">Click anywhere to start the game</div>
         <div id="timer-label">Click to add 60s</div>
         <canvas id="timer-canvas" width="100" height="100" class="hidden"></canvas>
-        <div id="card-container" class="hidden">
-            <div class="card-wrapper">
-                <div class="card">
-                    <div class="back"></div>
-                    <div class="front"></div>
-                </div>
-            </div>
-            <div class="card-wrapper">
-                <div class="card">
-                    <div class="back"></div>
-                    <div class="front"></div>
-                </div>
-            </div>
-            <div class="card-wrapper">
-                <div class="card">
-                    <div class="back"></div>
-                    <div class="front"></div>
-                </div>
-            </div>
-        </div>
-        <button id="undo-button">I want to change my mind</button>
-        <button id="auto-progress">Auto Progress</button>
+<div id="card-container" class="hidden" style="display: none;">
+    <!-- Cards will be dynamically created after the second "Continue" click -->
+     </div>
+<button id="undo-button">Bring back last card</button>
+<button id="reverse-button" style="position: absolute; top: -20%; left: calc(50% + 50px); padding: 10px 20px; border-radius: 20px;
+font-size: 16px; font-weight: bold; background-color: #abcfab; border: none; cursor: pointer;
+display: none; z-index: 1000;">Reverse Sentiment</button>
+<button id="auto-progress" style="position: absolute; left: 50%; transform: translateX(-50%); bottom: -100px; padding: 5px 15px; border-radius: 20px; font-size: 14px; background-color: #ddd; border: none; cursor: pointer;">Auto Progress</button>
         <button id="continue-button">Continue</button>
         <button id="copy-button" style="display: none; padding: 10px 20px; font-size: 16px; background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 5px; position: absolute; top: calc(50% + 180px); left: 50%; transform: translateX(-50%); z-index: 1200;">Click to Copy Results</button>
         <div id="rejected-container"></div>
@@ -402,7 +389,7 @@ background: repeating-linear-gradient(
 "I have usually had a strong person to give me advice or direction when I need it.|I have rarely had a strong person to give me advice or direction when I need it.|ed",
 "I don't tend to worry or think much about the fact that the people I love will die at some time.|I worry that the people I love will die soon, even though there is little medical reason for me to worry.|ab",
 "I am pretty secure with the people I am close to, I never think about them leaving me.|I find myself clinging to people I am close to, because I am afraid they will leave me.|ab",
-" never worry that people I feel close to will leave me or abandon me.|I worry that people I feel close to will leave me or abandon me.|ab",
+"I never worry that people I feel close to will leave me or abandon me.|I worry that people I feel close to will leave me or abandon me.|ab",
 "I feel that I have a stable base of support from someone who cares about me.|I feel that I lack a stable base of support from someone who cares about me.|ab",
 "I generally feel that important relationships will last.|I do not feel that important relationships will last; I expect them to end.|ab",
 "I tend to find partners who can be there for me in a committed way.|I feel addicted to partners who cannot be there for me in a committed way.|ab",
@@ -669,33 +656,29 @@ background: repeating-linear-gradient(
             }
             return array;
         }
-        const totalSets = Math.floor(232 / 3);
-        let currentSetIndex = 0;
-        let rejectedCard = null;
-        let removeFromTop = true;
-        let isFlipped = false;
-        let selectionStep = 0;
-        let isAnimating = false;
-        let updatePhase = null;
-        let timerInterval = null;
-        const cards = document.querySelectorAll('.card');
-        const instruction = document.getElementById('instruction');
-        const progressContainer = document.getElementById('progress-container');
-        const timerCanvas = document.getElementById('timer-canvas');
-        const continueButton = document.getElementById('continue-button');
+const totalSets = Math.floor(232 / 5);
+let currentSetIndex = 0;
+let selectedCards = [];
+let removeFromTop = true;
+let isFlipped = false;
+let selectionCount = 0;
+let isAnimating = false;
+let updatePhase = null;
+let timerInterval = null;
+let cards = [];
+const instruction = document.getElementById('instruction');
+const progressContainer = document.getElementById('progress-container');
+const timerCanvas = document.getElementById('timer-canvas');
+const continueButton = document.getElementById('continue-button');
+const reverseButton = document.getElementById('reverse-button');
         const ctx = timerCanvas.getContext('2d');
-        const allQuestions = [];
-        for (const category in questionsByCategory) {
-            allQuestions.push(...questionsByCategory[category].map(q => ({ text: q.question, opposite: q.opposite, category })));
-        }
-        shuffle(allQuestions);
-        for (let i = 0; i < 232; i++) {
-            const icon = document.createElement('div');
-            icon.className = 'progress-icon';
-            icon.title = allQuestions[i].text;
-            icon.dataset.category = allQuestions[i].category;
-            progressContainer.appendChild(icon);
-        }
+const allQuestions = [];
+for (const category in questionsByCategory) {
+    allQuestions.push(...questionsByCategory[category].map(q => ({ text: q.question, opposite: q.opposite, category })));
+}
+shuffle(allQuestions);
+// Delay creation of blue bricks until second "Continue" click
+
 function drawTimer(seconds, totalTime = 10) {
     ctx.clearRect(0, 0, timerCanvas.width, timerCanvas.height);
     const centerX = timerCanvas.width / 2;
@@ -708,7 +691,7 @@ function drawTimer(seconds, totalTime = 10) {
     ctx.beginPath();
     const progress = seconds / totalTime;
     ctx.arc(centerX, centerY, radius, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * (1 - progress), false);
-    ctx.strokeStyle = updatePhase === 'red' ? '#ec5f02' : updatePhase === 'green' ? '#b301b3' : '#D3D3D3'; /* Orange, Purple, Grey */
+    ctx.strokeStyle = updatePhase === 'red' ? '#ec5f02' : updatePhase === 'green' ? '#b301b3' : '#D3D3D3'; /* Red, Green, Grey */
     ctx.lineWidth = 10;
     ctx.stroke();
     ctx.font = '16px Arial';
@@ -717,56 +700,68 @@ function drawTimer(seconds, totalTime = 10) {
     ctx.textBaseline = 'middle';
     ctx.fillText(`${seconds}s`, centerX, centerY);
 }
-        function getNextSet() {
-            const availableQuestions = [];
-            for (const category in remainingQuestionsByCategory) {
-                availableQuestions.push(...remainingQuestionsByCategory[category].map(q => ({ text: q.question, opposite: q.opposite, category })));
-            }
-            if (availableQuestions.length < 3 && availableQuestions.length > 0) {
-                return availableQuestions.splice(0, availableQuestions.length);
-            }
-            if (availableQuestions.length === 0) return null;
-            shuffle(availableQuestions);
-            const set = [];
-            const availableCategories = Object.keys(remainingQuestionsByCategory).filter(c => remainingQuestionsByCategory[c].length > 0);
-            if (availableCategories.length >= 3) {
-                const affinity = {};
-                for (const category in remainingQuestionsByCategory) {
-                    const green = greenSelections[category] || 0;
-                    const red = redSelections[category] || 0;
-                    affinity[category] = green - red;
-                }
-                let possibleTriplets = [];
-                for (let i = 0; i < availableCategories.length; i++) {
-                    for (let j = i + 1; j < availableCategories.length; j++) {
-                        for (let k = j + 1; k < availableCategories.length; k++) {
-                            const triplet = [availableCategories[i], availableCategories[j], availableCategories[k]];
-                            const score = Math.abs(affinity[triplet[0]] - affinity[triplet[1]]) +
-                                          Math.abs(affinity[triplet[0]] - affinity[triplet[2]]) +
-                                          Math.abs(affinity[triplet[1]] - affinity[triplet[2]]);
-                            possibleTriplets.push({triplet, score});
+function getNextSet() {
+    const availableQuestions = [];
+    for (const category in remainingQuestionsByCategory) {
+        availableQuestions.push(...remainingQuestionsByCategory[category].map(q => ({ text: q.question, opposite: q.opposite, category })));
+    }
+    if (availableQuestions.length < 5 && availableQuestions.length > 0) {
+        return availableQuestions.splice(0, availableQuestions.length);
+    }
+    if (availableQuestions.length === 0) return null;
+    shuffle(availableQuestions);
+    const set = [];
+    const availableCategories = Object.keys(remainingQuestionsByCategory).filter(c => remainingQuestionsByCategory[c].length > 0);
+    if (availableCategories.length >= 5) {
+        const affinity = {};
+        for (const category in remainingQuestionsByCategory) {
+            const green = greenSelections[category] || 0;
+            const red = redSelections[category] || 0;
+            affinity[category] = green - red;
+        }
+        let possibleQuintets = [];
+        for (let i = 0; i < availableCategories.length; i++) {
+            for (let j = i + 1; j < availableCategories.length; j++) {
+                for (let k = j + 1; k < availableCategories.length; k++) {
+                    for (let m = k + 1; m < availableCategories.length; m++) {
+                        for (let n = m + 1; n < availableCategories.length; n++) {
+                            const quintet = [availableCategories[i], availableCategories[j], availableCategories[k], availableCategories[m], availableCategories[n]];
+                            const score = Math.abs(affinity[quintet[0]] - affinity[quintet[1]]) +
+                                          Math.abs(affinity[quintet[0]] - affinity[quintet[2]]) +
+                                          Math.abs(affinity[quintet[0]] - affinity[quintet[3]]) +
+                                          Math.abs(affinity[quintet[0]] - affinity[quintet[4]]) +
+                                          Math.abs(affinity[quintet[1]] - affinity[quintet[2]]) +
+                                          Math.abs(affinity[quintet[1]] - affinity[quintet[3]]) +
+                                          Math.abs(affinity[quintet[1]] - affinity[quintet[4]]) +
+                                          Math.abs(affinity[quintet[2]] - affinity[quintet[3]]) +
+                                          Math.abs(affinity[quintet[2]] - affinity[quintet[4]]) +
+                                          Math.abs(affinity[quintet[3]] - affinity[quintet[4]]);
+                            possibleQuintets.push({quintet, score});
                         }
                     }
                 }
-                if (possibleTriplets.length > 0) {
-                    possibleTriplets.sort((a, b) => b.score - a.score);
-                    const bestTriplet = possibleTriplets[0].triplet;
-                    for (const category of bestTriplet) {
-                        const questions = remainingQuestionsByCategory[category];
-                        const idx = Math.floor(Math.random() * questions.length);
-                        const question = questions.splice(idx, 1)[0];
-                        set.push({ text: question.question, opposite: question.opposite, category });
-                    }
-                    return set;
-                }
             }
-            for (let i = 0; i < 3 && availableQuestions.length > 0; i++) {
-                const question = availableQuestions.shift();
-                set.push(question);
-                remainingQuestionsByCategory[question.category] = remainingQuestionsByCategory[question.category].filter(q => q.question !== question.text);
+        }
+        if (possibleQuintets.length > 0) {
+            possibleQuintets.sort((a, b) => b.score - a.score);
+            const bestQuintet = possibleQuintets[0].quintet;
+            for (const category of bestQuintet) {
+                const questions = remainingQuestionsByCategory[category];
+                const idx = Math.floor(Math.random() * questions.length);
+                const question = questions.splice(idx, 1)[0];
+                set.push({ text: question.question, opposite: question.opposite, category });
             }
             return set;
         }
+    }
+    for (let i = 0; i < 5 && availableQuestions.length > 0; i++) {
+        const question = availableQuestions.shift();
+        set.push(question);
+        remainingQuestionsByCategory[question.category] = remainingQuestionsByCategory[question.category].filter(q => q.question !== question.text);
+    }
+    return set;
+}
+
 function animateCardToContainer(card, containerId, iconClass, text, opposite, category, callback) {
     console.log(`animateCardToContainer: Adding ${iconClass} to ${containerId}, text=${text}, category=${category}`);
     const initialRect = card.getBoundingClientRect();
@@ -787,6 +782,11 @@ function animateCardToContainer(card, containerId, iconClass, text, opposite, ca
     actualIcon.style.visibility = 'hidden';
     const container = document.getElementById(containerId);
     container.appendChild(actualIcon);
+    // Add tooltip for red, green, and grey bricks
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tooltip';
+    tooltip.textContent = actualIcon.dataset.tooltip;
+    actualIcon.appendChild(tooltip);
     actualIcon.addEventListener('click', () => {
         actualIcon.classList.toggle('marked');
     }, { once: false });
@@ -806,13 +806,8 @@ function animateCardToContainer(card, containerId, iconClass, text, opposite, ca
         console.log(`animateCardToContainer: ${iconClass} made visible in ${containerId}`);
         if (callback) callback();
     }, { once: true });
-            frontClone.addEventListener('transitionend', () => {
-                document.body.removeChild(frontClone);
-                actualIcon.style.visibility = 'visible';
-                console.log(`animateCardToContainer: ${iconClass} made visible in ${containerId}`);
-                if (callback) callback();
-            }, { once: true });
-        }
+}
+
 function addNeitherIcon(text, opposite, category) {
     const icon = document.createElement('div');
     icon.className = 'neither-icon';
@@ -820,6 +815,10 @@ function addNeitherIcon(text, opposite, category) {
     icon.dataset.opposite = opposite;
     icon.dataset.category = category;
     icon.dataset.text = text;
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tooltip';
+    tooltip.textContent = text;
+    icon.appendChild(tooltip);
     icon.addEventListener('click', () => {
         icon.classList.toggle('marked');
     });
@@ -831,19 +830,37 @@ function startUpdatePhase() {
     document.getElementById('game-container').style.display = 'block';
     document.getElementById('card-container').style.display = 'none';
     document.getElementById('undo-button').style.display = 'none';
+    document.getElementById('reverse-button').style.display = 'none';
     document.getElementById('auto-progress').style.display = 'none';
     document.getElementById('results-container').style.display = 'none';
     updatePhase = 'red';
-    instruction.innerText = "You have completed the first phase of the game.\nYou likely had to choose some purple cards that would be better orange or grey (not chosen), and maybe some orange cards that you would prefer purple.\n\nThe next section lets you change some of those cards.\n\nWhen you click below, a 2 minute timer will appear.\n\n You can now hover your mouse over any orange card, you will see the OPPOSITE statement to the statment you rejected. You can click to swap that card to purple or to grey.\n\nYou can click as many bricks as you like during the 2 minute period.\nPlease click on Continue when you are ready.";
+    instruction.innerText = 
+    "You have completed the first phase of the game.\nYou likely had to choose some cards (both red and green) that you felt more strongly than others.The grey cards were what was left, probably most of these are in-between.\n\nThe next section lets you change some of those cards.\n\nWhen you click below, a 2 minute timer will appear.\n\nYou can now hover your mouse over any red card, you will see the statement you chose. You can click to strengthen that card (darker red) or to weaken it (grey).\n\nYou can click as many bricks as you like during the 2 minute period.\nPlease click on Continue when you are ready.";
     instruction.style.display = 'block';
+    console.log('Setting continueButton.style.display to block, continueButton:', continueButton, 'current style:', continueButton ? continueButton.style.display : 'null');
     continueButton.style.display = 'block';
-    continueButton.focus();
+    continueButton.style.zIndex = '1200'; // Ensure it’s above other elements
+    continueButton.style.position = 'relative'; // Reset to ensure visibility
+    console.log('continueButton.style.display set to:', continueButton.style.display);
+    // Force reflow
+    continueButton.offsetHeight;
+    requestAnimationFrame(() => {
+        console.log('After reflow, continueButton.style.display:', continueButton.style.display);
+        continueButton.focus();
+        continueButton.addEventListener('click', () => {
+            console.log('Continue button clicked, starting update phase, progressContainer.children.length:', progressContainer.children.length);
+            startUpdatePhase();
+            continueButton.style.display = 'none';
+        }, { once: true });
+        console.log('Event listener attached to continueButton, continueButton:', continueButton);
+    });
     setTimeout(() => {
-        console.log('Continue button display:', continueButton.style.display);
+        console.log('Continue button display after delay:', continueButton.style.display);
         instruction.offsetHeight;
         continueButton.offsetHeight;
     }, 300);
 }
+
 function updateBricks(containerId, currentStatus) {
     console.log(`updateBricks called for ${containerId} with status ${currentStatus}`);
     const container = document.getElementById(containerId);
@@ -858,15 +875,6 @@ function updateBricks(containerId, currentStatus) {
     const debounceDelay = 200;
     bricks.forEach((brick, index) => {
         brick.classList.add('clickable');
-        // Remove existing tooltip if any
-        const existingTooltip = brick.querySelector('.tooltip');
-        if (existingTooltip) {
-            brick.removeChild(existingTooltip);
-        }
-        const tooltip = document.createElement('div');
-        tooltip.className = 'tooltip';
-        tooltip.textContent = brick.dataset.tooltip;
-        brick.appendChild(tooltip);
         const handler = () => {
             const now = Date.now();
             if (now - lastClickTime < debounceDelay) {
@@ -905,11 +913,9 @@ function updateBricks(containerId, currentStatus) {
                 selection.status = newStatus;
                 brick.className = `${newClass} clickable`;
                 brick.classList.remove('marked'); // Remove dot on click
-                // Remove existing tooltip before creating a new one
+                // Update tooltip
                 const oldTooltip = brick.querySelector('.tooltip');
-                if (oldTooltip) {
-                    brick.removeChild(oldTooltip);
-                }
+                if (oldTooltip) brick.removeChild(oldTooltip);
                 const newTooltip = document.createElement('div');
                 newTooltip.className = 'tooltip';
                 newTooltip.textContent = brick.dataset.tooltip;
@@ -938,10 +944,10 @@ function updateBricks(containerId, currentStatus) {
             let nextInstruction;
             if (currentPhase === 'red') {
                 nextPhase = 'green';
-                nextInstruction = "Thank you for updating your orange bricks.\nNow please update your purple bricks in the same way.\n\nEach purple brick represents a card you have chosen that resonates with you. If you want to change your choice, click to change to orange -- or grey if not sure.\n\nPlease click on Continue when you are ready.";
+                nextInstruction = "Thank you for updating your red bricks.\nNow please update your green bricks in the same way.\n\nEach green brick represents a card you have chosen that resonates with you. If you want to change your choice, click to change to red -- or grey if not sure.\n\nPlease click on Continue when you are ready.";
             } else if (currentPhase === 'green') {
                 nextPhase = 'grey';
-                nextInstruction = "Now you will have 2 minutes to update your grey bricks.  These represent the cards that you neither rejected or selected.\n\nClick on any grey brick to change it to purple, and again to change it to orange.\n\nPlease click on Continue when you are ready.";
+                nextInstruction = "Now you will have 2 minutes to update your grey bricks.  These represent the cards that you neither rejected or selected.\n\nClick on any grey brick to change it to green, and again to change it to red.\n\nPlease click on Continue when you are ready.";
             } else {
                 document.getElementById('game-container').style.display = 'none';
                 displayResults();
@@ -965,6 +971,7 @@ function timerClickHandler(timeLeft, timeLimit, drawTimer) {
 continueButton.addEventListener('click', () => {
     if (!updatePhase) return;
     if (timerInterval) clearInterval(timerInterval);
+    console.log('Continue button clicked, initiating timer for updatePhase:', updatePhase);
     continueButton.style.display = 'none';
     timerCanvas.classList.remove('hidden');
     timerCanvas.style.display = 'block';
@@ -974,10 +981,12 @@ continueButton.addEventListener('click', () => {
     let timeLeft = { value: timeLimit.value };
     drawTimer(timeLeft.value, timeLimit.value);
     timerInterval = setInterval(() => {
+        console.log('Timer tick, timeLeft:', timeLeft.value, 'updatePhase:', updatePhase);
         timeLeft.value--;
         if (timeLeft.value >= 0) {
             drawTimer(timeLeft.value, timeLimit.value);
         } else {
+            console.log('Timer expired, clearing interval, calling endUpdatePhase with updatePhase:', updatePhase);
             clearInterval(timerInterval);
             timerInterval = null;
             timerCanvas.removeEventListener('click', currentHandler);
@@ -990,14 +999,18 @@ continueButton.addEventListener('click', () => {
     timerCanvas.removeEventListener('click', currentHandler);
     timerCanvas.addEventListener('click', currentHandler);
     if (updatePhase === 'red') {
+        console.log('Initializing updateBricks for rejected-container with red phase');
         updateBricks('rejected-container', 'red');
     } else if (updatePhase === 'green') {
+        console.log('Initializing updateBricks for selected-container with green phase');
         updateBricks('selected-container', 'green');
     } else if (updatePhase === 'grey') {
+        console.log('Initializing updateBricks for neither-container with grey phase');
         updateBricks('neither-container', 'grey');
     }
 });
-function bigIntToBase(n, base, digits) {
+
+    function bigIntToBase(n, base, digits) {
     if (n === 0n) return digits[0].repeat(63);
     let result = [];
     let temp = n;
@@ -1100,225 +1113,413 @@ function displayResults() {
         });
     };
 }
-        function displaySet() {
-            if (allSelections.length >= 231) {
-                const availableQuestions = [];
-                for (const category in remainingQuestionsByCategory) {
-                    availableQuestions.push(...remainingQuestionsByCategory[category].map(q => ({ text: q.question, opposite: q.opposite, category })));
-                }
-                if (availableQuestions.length === 1) {
-                    const lastQuestion = availableQuestions[0];
-                    allSelections.push({ text: lastQuestion.text, category: lastQuestion.category, status: 'grey' });
-                    remainingQuestionsByCategory[lastQuestion.category] = remainingQuestionsByCategory[lastQuestion.category].filter(q => q.question !== lastQuestion.text);
-                    if (progressContainer.lastChild) {
-                        progressContainer.removeChild(progressContainer.lastChild);
-                    }
-                }
-                instruction.innerText = "All sets completed!";
-                cards.forEach(card => {
-                    card.style.display = 'none';
-                });
-                document.getElementById('undo-button').style.display = 'none';
-                document.getElementById('auto-progress').style.display = 'none';
-                document.getElementById('game-container').style.display = 'block';
-                continueButton.style.display = 'none';
-                startUpdatePhase();
-                return;
-            }
-            const set = getNextSet();
-            if (!set) {
-                instruction.innerText = "All sets completed!";
-                cards.forEach(card => {
-                    card.style.display = 'none';
-                });
-                document.getElementById('undo-button').style.display = 'none';
-                document.getElementById('auto-progress').style.display = 'none';
-                document.getElementById('game-container').style.display = 'block';
-                continueButton.style.display = 'none';
-                startUpdatePhase();
-                return;
-            }
-            if (removeFromTop) {
-                for (let i = 0; i < set.length && progressContainer.firstChild; i++) {
-                    progressContainer.removeChild(progressContainer.firstChild);
-                }
-            } else {
-                for (let i = 0; i < set.length && progressContainer.lastChild; i++) {
+
+function displaySet() {
+    console.log('displaySet called, allSelections.length:', allSelections.length, 'remainingQuestionsByCategory:', remainingQuestionsByCategory, 'progressContainer.children.length:', progressContainer.children.length);
+    // Line before the end-of-phase check
+    console.log('Before end check, allSelections.length:', allSelections.length, 'remainingQuestionsByCategory:', remainingQuestionsByCategory, 'progressContainer.children.length:', progressContainer.children.length);
+    // Check if all 232 questions are selected, no more sets are available, or all progress icons are used
+    if (allSelections.length >= 232 || (remainingQuestionsByCategory && Object.values(remainingQuestionsByCategory).every(cat => cat.length === 0)) || progressContainer.children.length === 0) {
+        console.log('After end check, condition met:', allSelections.length >= 232 || (remainingQuestionsByCategory && Object.values(remainingQuestionsByCategory).every(cat => cat.length === 0)) || progressContainer.children.length === 0, 'allSelections.length:', allSelections.length, 'remainingQuestionsByCategory empty:', Object.values(remainingQuestionsByCategory).every(cat => cat.length === 0), 'progressContainer.children.length:', progressContainer.children.length);
+        console.log('End of card phase detected, preparing to transition, allSelections.length:', allSelections.length, 'progressContainer.children.length:', progressContainer.children.length);
+        const availableQuestions = [];
+        for (const category in remainingQuestionsByCategory) {
+            availableQuestions.push(...remainingQuestionsByCategory[category].map(q => ({ text: q.question, opposite: q.opposite, category })));
+        }
+        if (availableQuestions.length > 0 && availableQuestions.length <= 4) {
+            console.log('Handling remaining questions:', availableQuestions.length);
+            availableQuestions.forEach(q => {
+                allSelections.push({ text: q.text, category: q.category, status: 'grey' });
+                remainingQuestionsByCategory[q.category] = remainingQuestionsByCategory[q.category].filter(r => r.question !== q.text);
+                if (progressContainer.lastChild) {
                     progressContainer.removeChild(progressContainer.lastChild);
                 }
-            }
-            removeFromTop = !removeFromTop;
-            const numIcons = progressContainer.children.length;
-            const numRows = Math.ceil(numIcons / 12);
-            progressContainer.style.gridTemplateRows = `repeat(${numRows}, 22px)`;
-            progressContainer.style.height = `calc((22px + 2px) * ${numRows} - 2px)`;
-            cards.forEach((card, index) => {
-                if (index < set.length) {
-                    card.querySelector('.front').innerText = set[index].text;
-                    card.title = set[index].opposite;
-                    card.dataset.category = set[index].category;
-                    card.style.display = 'block';
-                    card.style.visibility = 'visible';
-                    card.style.transform = '';
-                    card.style.opacity = '1';
-                    card.classList.remove('flipped', 'slide-down', 'slide-up', 'selected');
-                } else {
-                    card.style.display = 'none';
-                }
             });
-            isFlipped = false;
-            selectionStep = 0;
-            isAnimating = false;
-            instruction.innerText = "Click any card to flip all cards";
-            document.getElementById('card-container').classList.remove('reject-phase', 'select-phase');
-            document.getElementById('undo-button').style.display = 'none';
+            console.log('Updated allSelections.length:', allSelections.length, 'progressContainer.children.length:', progressContainer.children.length);
+        }
+        instruction.innerText = "All sets completed! Click Continue to proceed to the next phase.";
+        cards.forEach(card => {
+            card.style.display = 'none';
+        });
+        document.getElementById('undo-button').style.display = 'none';
+        document.getElementById('reverse-button').style.display = 'none';
+        document.getElementById('auto-progress').style.display = 'none';
+        document.getElementById('game-container').style.display = 'block';
+        console.log('Initiating phase transition, calling startUpdatePhase directly');
+        startUpdatePhase(); // Direct call to ensure phase transition
+        console.log('startUpdatePhase called, continueButton setup to follow');
+        // Optional manual continue button as fallback
+        console.log('Setting continueButton.style.display to block, continueButton:', continueButton);
+        continueButton.style.display = 'block';
+        continueButton.style.zIndex = '1200';
+        continueButton.style.position = 'relative';
+        console.log('continueButton.style.display set to:', continueButton.style.display);
+        continueButton.addEventListener('click', () => {
+            console.log('Continue button clicked, starting update phase manually, progressContainer.children.length:', progressContainer.children.length);
+            startUpdatePhase();
             continueButton.style.display = 'none';
+        }, { once: true });
+        console.log('Event listener attached to continueButton, continueButton:', continueButton);
+        continueButton.focus();
+        return;
+    }
+    const set = getNextSet();
+    console.log('getNextSet returned set:', set, 'allSelections.length:', allSelections.length, 'progressContainer.children.length:', progressContainer.children.length);
+    if (!set) {
+        console.log('No more sets available, triggering end of card phase, allSelections.length:', allSelections.length, 'progressContainer.children.length:', progressContainer.children.length);
+        instruction.innerText = "All sets completed! Click Continue to proceed to the next phase.";
+        cards.forEach(card => {
+            card.style.display = 'none';
+        });
+        document.getElementById('undo-button').style.display = 'none';
+        document.getElementById('reverse-button').style.display = 'none';
+        document.getElementById('auto-progress').style.display = 'none';
+        document.getElementById('game-container').style.display = 'block';
+        console.log('Initiating phase transition, calling startUpdatePhase directly');
+        startUpdatePhase(); // Direct call to ensure phase transition
+        console.log('startUpdatePhase called, continueButton setup to follow');
+        // Optional manual continue button as fallback
+        console.log('Setting continueButton.style.display to block, continueButton:', continueButton);
+        continueButton.style.display = 'block';
+        continueButton.style.zIndex = '1200';
+        continueButton.style.position = 'relative';
+        console.log('continueButton.style.display set to:', continueButton.style.display);
+        continueButton.addEventListener('click', () => {
+            console.log('Continue button clicked, starting update phase manually, progressContainer.children.length:', progressContainer.children.length);
+            startUpdatePhase();
+            continueButton.style.display = 'none';
+        }, { once: true });
+        console.log('Event listener attached to continueButton, continueButton:', continueButton);
+        continueButton.focus();
+        return;
+    }
+    if (removeFromTop) {
+        for (let i = 0; i < set.length && progressContainer.firstChild; i++) {
+            progressContainer.removeChild(progressContainer.firstChild);
         }
-        function flipCards() {
-            cards.forEach(card => {
-                if (card.style.display !== 'none') {
-                    card.classList.add('flipped');
-                }
-            });
-            isFlipped = true;
-            selectionStep = 1;
-            instruction.innerText = "Choose which option is LEAST like you";
-            document.getElementById('card-container').classList.add('reject-phase');
+    } else {
+        for (let i = 0; i < set.length && progressContainer.lastChild; i++) {
+            progressContainer.removeChild(progressContainer.lastChild);
         }
+    }
+    removeFromTop = !removeFromTop;
+    const numIcons = progressContainer.children.length;
+    const numRows = Math.ceil(numIcons / 12);
+    progressContainer.style.gridTemplateRows = `repeat(${numRows}, 22px)`;
+    progressContainer.style.height = `calc((22px + 2px) * ${numRows} - 2px)`;
+    cards.forEach((card, index) => {
+        if (index < set.length) {
+            card.querySelector('.front').innerText = set[index].text;
+            card.querySelector('.front').style.backgroundColor = '#abcfab'; /* Light green */
+            card.dataset.category = set[index].category;
+            card.dataset.text = set[index].text;
+            card.dataset.opposite = set[index].opposite;
+            card.style.display = 'block';
+            card.style.visibility = 'visible';
+            card.style.transform = '';
+            card.style.opacity = '1';
+            card.classList.remove('flipped', 'slide-down', 'slide-up', 'selected');
+            card.removeAttribute('title'); // Remove card tooltip
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    isFlipped = false;
+    selectionCount = 0;
+    selectedCards = [];
+    isAnimating = false;
+    instruction.innerText = " Click any card to begin\n\n\n\n";
+    document.getElementById('card-container').classList.add('select-phase');
+    document.getElementById('undo-button').style.display = 'none';
+    document.getElementById('reverse-button').style.display = 'none';
+    document.getElementById('reverse-button').style.backgroundColor = '#ff9999'; /* Light red, as cards start green */
+    document.getElementById('auto-progress').style.display = 'block'; // Show auto-progress button
+    continueButton.style.display = 'none';
+}
 
-        document.getElementById('continue-button').addEventListener('click', startGame, { once: true });
-        function startGame() {
-            instruction.innerText = 
-            `The first part of this session resembles a card game\n
-            To your left are many blue boxes, each box represents a card.
-            The system will draw 3 cards from there, 
-            each card has a statement on it.\n
-            You should first choose the card most NOT like you, 
-            this will go to the orange box, 
-            then choose the card that is most LIKE you, 
-            this will go to the purple box.  
-            The remaining card will go to the grey box\n
-            There will be some sets where all the cards are like you or all are not. Just make a choice, you can change it later.\n 
-            To mark a card for later review just click on it after you have sent it to its box. A little black mark will appear on the card.\n
-            When you are ready to start click continue`;
-            continueButton.style.display = 'block';
-            continueButton.focus();
-            continueButton.addEventListener('click', () => {
-                continueButton.style.display = 'none';
-                document.getElementById('card-container').classList.remove('hidden');
-                displaySet();
-            }, { once: true });
+function flipCards() {
+    cards.forEach(card => {
+        if (card.style.display !== 'none') {
+            card.classList.add('flipped');
+            card.querySelector('.front').innerText = card.dataset.opposite;
+            card.querySelector('.front').style.backgroundColor = '#ff9999'; /* Light red */
+            card.removeAttribute('title'); // Remove card tooltip
         }
-        instruction.innerText = 
-        `You are about to go through an interactive experience that will ask you some questions you may find very sensitive.\n
-        This session is totally anonymous, your name is not recorded and no-one can see what you enter.\n
-        At the end of the session you will get a results summary.
-        This should give you insight into some of your deeper motivations and potential blockers to your learning.\n
-        This can be very useful for your coach but it is up to you to forward to them if you would like at the end.\n
-        If you are happy to send to your coach, you can copy and paste your results summary at the end into an email and send it to them.\n
-        The full session will take 20 to 30 minutes
-        When you are ready to progress click continue`;
+    });
+    isFlipped = true;
+    selectionCount = 0;
+    instruction.innerText = "                                                     choose the card MOST like you\n                                                     (if none then reverse sentiment)\n\n\n\n";
+    document.getElementById('card-container').classList.remove('select-phase');
+    document.getElementById('card-container').classList.add('reject-phase');
+    document.getElementById('undo-button').style.display = 'block';
+    document.getElementById('reverse-button').style.display = 'block';
+    document.getElementById('reverse-button').style.backgroundColor = '#abcfab'; /* Light green */
+}
+        document.getElementById('continue-button').addEventListener('click', startGame, { once: true });
+
+function startGame() {
+    instruction.innerText =
+    `The first part of this session resembles a card game\n
+    To your left are many blue boxes, each box represents a card.
+    The system draws 5 cards from there, each card has a statement.\n
+    Red cards show statements which are generally issues for you.
+    Green cards show the opposite positive statement.
+    Use the button "reverse sentiment" to look at your options.\n
+    Click on a card when it is most correct for you.
+    The 5th card in any set goes "grey" automatically (unsure)\n
+    If a statement really fits you, once selected click again to mark
+    it with a black dot.  This indicates a strong resonance\n
+    When you are ready to start click continue\n\n\n\n\n\n`;
+    continueButton.style.display = 'block';
+    continueButton.focus();
+    continueButton.addEventListener('click', () => {
+        continueButton.style.display = 'none';
+        instruction.innerText = "Click continue to begin the game";
         continueButton.style.display = 'block';
         continueButton.focus();
-
-        function undoRejection() {
-            if (rejectedCard && selectionStep === 2) {
-                rejectedCard.style.visibility = 'visible';
-                const rejectedContainer = document.getElementById('rejected-container');
-                if (rejectedContainer.lastChild) {
-                    const text = rejectedContainer.lastChild.dataset.text;
-                    const selection = allSelections.find(sel => sel.text === text && sel.status === 'red');
-                    if (selection) {
-                        redSelections[selection.category]--;
-                        allSelections.splice(allSelections.indexOf(selection), 1);
-                    }
-                    rejectedContainer.removeChild(rejectedContainer.lastChild);
-                }
-                document.getElementById('card-container').classList.remove('select-phase');
-                document.getElementById('card-container').classList.add('reject-phase');
-                instruction.innerText = "Choose which option is LEAST like you";
-                selectionStep = 1;
-                document.getElementById('undo-button').style.display = 'none';
+        continueButton.addEventListener('click', () => {
+            continueButton.style.display = 'none'; // Ensure button hides after second click
+            instruction.style.zIndex = -1; // Move instruction behind game elements
+            // Create and display blue bricks
+            for (let i = 0; i < 232; i++) {
+                const icon = document.createElement('div');
+                icon.className = 'progress-icon';
+                icon.title = allQuestions[i].text;
+                icon.dataset.category = allQuestions[i].category;
+                progressContainer.appendChild(icon);
+                const existingTooltip = icon.querySelector('.tooltip');
+                if (existingTooltip) icon.removeChild(existingTooltip);
             }
-        }
-        cards.forEach((card, index) => {
-            card.addEventListener('click', () => {
-                if (card.style.display === 'none' || isAnimating) return;
-                if (!isFlipped && selectionStep === 0) {
-                    flipCards();
-                } else if (isFlipped && selectionStep === 1) {
-                    isAnimating = true;
-                    rejectedCard = card;
-                    const rejectedText = card.querySelector('.front').innerText;
-                    const rejectedOpposite = card.title;
-                    const rejectedCategory = card.dataset.category;
-                    redSelections[rejectedCategory] = (redSelections[rejectedCategory] || 0) + 1;
-                    animateCardToContainer(card, 'rejected-container', 'rejected-icon', rejectedText, rejectedOpposite, rejectedCategory, () => {
-                        document.getElementById('card-container').classList.remove('reject-phase');
-                        document.getElementById('card-container').classList.add('select-phase');
-                        instruction.innerText = "Which option is MOST like you";
-                        selectionStep = 2;
-                        document.getElementById('undo-button').style.display = 'block';
-                        isAnimating = false;
-                    });
-                    card.style.visibility = 'hidden';
-                    allSelections.push({ text: rejectedText, category: rejectedCategory, status: 'red' });
-                } else if (isFlipped && selectionStep === 2) {
-                    isAnimating = true;
-                    card.classList.add('selected');
-                    const selectedText = card.querySelector('.front').innerText;
-                    const selectedOpposite = card.title;
-                    const category = card.dataset.category;
-                    greenSelections[category] = (greenSelections[category] || 0) + 1;
-                    const neitherCard = Array.from(cards).find(c => c.style.visibility !== 'hidden' && c !== card);
-                    const neitherText = neitherCard ? neitherCard.querySelector('.front').innerText : '';
-                    const neitherOpposite = neitherCard ? neitherCard.title : '';
-                    const neitherCategory = neitherCard ? neitherCard.dataset.category : '';
-                    setTimeout(() => {
-                        animateCardToContainer(card, 'selected-container', 'selected-icon', selectedText, selectedOpposite, category, () => {
-                            if (neitherText) {
-                                addNeitherIcon(neitherText, neitherOpposite, neitherCategory);
+            document.getElementById('card-container').style.display = 'flex'; // Use inline style to ensure display
+            document.getElementById('progress-container').style.display = 'grid';
+            document.getElementById('selected-container').style.display = 'flex';
+            document.getElementById('rejected-container').style.display = 'flex';
+            document.getElementById('neither-container').style.display = 'flex';
+            // Dynamically create cards and attach event listeners
+            const cardContainer = document.getElementById('card-container');
+            for (let i = 0; i < 5; i++) {
+                const cardWrapper = document.createElement('div');
+                cardWrapper.className = 'card-wrapper';
+                const card = document.createElement('div');
+                card.className = 'card';
+                const back = document.createElement('div');
+                back.className = 'back';
+                back.style.background = 'repeating-linear-gradient(60deg, #1e90ff, #1e90ff 13px, #24588c 10px, #104e8b 20px)';
+                const front = document.createElement('div');
+                front.className = 'front';
+                card.appendChild(back);
+                card.appendChild(front);
+                cardWrapper.appendChild(card);
+                cardContainer.appendChild(cardWrapper);
+                cards.push(card);
+                // Attach click event listener to each new card
+                card.addEventListener('click', () => {
+                    if (card.style.display === 'none' || isAnimating) return;
+                    if (!isFlipped) {
+                        flipCards();
+                    } else if (selectionCount < 4) {
+                        isAnimating = true;
+                        const isRejectPhase = document.getElementById('card-container').classList.contains('reject-phase');
+                        const status = isRejectPhase ? 'red' : 'green';
+                        const containerId = isRejectPhase ? 'rejected-container' : 'selected-container';
+                        const iconClass = isRejectPhase ? 'rejected-icon' : 'selected-icon';
+                        const text = card.dataset.text;
+                        const opposite = card.dataset.opposite;
+                        const category = card.dataset.category;
+                        if (status === 'red') {
+                            redSelections[category] = (redSelections[category] || 0) + 1;
+                        } else {
+                            greenSelections[category] = (greenSelections[category] || 0) + 1;
+                        }
+                        selectedCards.push({ card, status });
+                        card.style.visibility = 'hidden';
+                        animateCardToContainer(card, containerId, iconClass, text, opposite, category, () => {
+                            selectionCount++;  
+                            allSelections.push({ text, category, status });
+                            if (selectionCount === 4 || (selectionCount < 4 && progressContainer.children.length === 0)) {
+                                const remainingCard = Array.from(cards).find(c => c.style.display !== 'none' && c.style.visibility !== 'hidden');
+                                if (remainingCard) {
+                                    const neitherText = remainingCard.dataset.text;
+                                    const neitherOpposite = remainingCard.dataset.opposite;
+                                    const neitherCategory = remainingCard.dataset.category;
+                                    animateCardToContainer(remainingCard, 'neither-container', 'neither-icon', neitherText, neitherOpposite, neitherCategory, () => {
+                                        currentSetIndex++;
+                                        displaySet();
+                                    });
+                                    remainingCard.style.visibility = 'hidden';
+                                    allSelections.push({ text: neitherText, category: neitherCategory, status: 'grey' });
+                                } else {
+                                    currentSetIndex++;
+                                    displaySet();
+                                }
+                            } else {
+                                instruction.innerText = isRejectPhase ? "                                                     choose the card MOST like you\n                                                     (if none then reverse sentiment)\n\n\n\n" : "                                                     choose the card MOST like you\n                                                     (if none then reverse sentiment)\n\n\n\n";
+                                document.getElementById('undo-button').style.display = 'block';
+                                document.getElementById('reverse-button').style.display = (5 - selectionCount) >= 2 ? 'block' : 'none';
+                                document.getElementById('reverse-button').style.backgroundColor = isRejectPhase ? '#abcfab' : '#ff9999'; /* Opposite of current card color */
+                                isAnimating = false;
                             }
+                        });
+                    }
+                });
+            }
+            displaySet();
+        }, { once: true });
+    }, { once: true });
+}
+       instruction.innerText =
+    `You are about to go through an interactive experience that will ask you some questions you may find very sensitive.\n
+    This session is totally anonymous, 
+    your name is not recorded and no-one can see what you enter.\n
+    At the end of the session you will get a results summary.
+    This should give you insight into some of your deeper motivations and potential blockers to your learning.\n
+    This can be very useful for your coach. It is up to you to forward your results at the end. If you take no action, all data is deleted\n
+    To forward your results, just copy and paste your results summary at the end into an email and send it.\n
+    The full session will take 20 to 30 minutes
+    When you are ready to progress click continue\n\n\n\n\n\n\n\n`;
+continueButton.style.display = 'block';
+continueButton.focus();
+
+function undoRejection() {
+    if (selectedCards.length > 0 && selectionCount > 0) {
+        const lastCard = selectedCards.pop();
+        selectionCount--;
+        const containerId = lastCard.status === 'red' ? 'rejected-container' : 'selected-container';
+        const container = document.getElementById(containerId);
+        if (container.lastChild) {
+            const text = container.lastChild.dataset.text;
+            const selection = allSelections.find(sel => sel.text === text && sel.status === lastCard.status);
+            if (selection) {
+                if (lastCard.status === 'red') {
+                    redSelections[selection.category]--;
+                } else {
+                    greenSelections[selection.category]--;
+                }
+                allSelections.splice(allSelections.indexOf(selection), 1);
+            }
+            container.removeChild(container.lastChild);
+        }
+        lastCard.card.style.visibility = 'visible';
+        const cardContainer = document.getElementById('card-container');
+        const isRejectPhase = cardContainer.classList.contains('reject-phase');
+        lastCard.card.querySelector('.front').innerText = isRejectPhase ? lastCard.card.dataset.opposite : lastCard.card.dataset.text;
+        lastCard.card.title = isRejectPhase ? lastCard.card.dataset.text : lastCard.card.dataset.opposite;
+        lastCard.card.querySelector('.front').style.backgroundColor = isRejectPhase ? '#ff9999' : '#abcfab';
+        instruction.innerText = "                                                     choose the card MOST like you\n                                                     (if none then reverse sentiment)\n\n\n\n";
+        document.getElementById('undo-button').style.display = 'block';
+        document.getElementById('reverse-button').style.display = (5 - selectionCount) >= 2 ? 'block' : 'none';
+    }
+}
+
+function reverseSentiment() {
+    if (isAnimating || selectionCount >= 4 || (5 - selectionCount) < 2) return;
+    const cardContainer = document.getElementById('card-container');
+    const isRejectPhase = cardContainer.classList.contains('reject-phase');
+    cardContainer.classList.toggle('reject-phase');
+    cardContainer.classList.toggle('select-phase');
+    const remainingCards = Array.from(cards).filter(c => c.style.display !== 'none' && c.style.visibility !== 'hidden');
+    remainingCards.forEach(card => {
+        card.querySelector('.front').innerText = isRejectPhase ? card.dataset.text : card.dataset.opposite;
+        card.title = isRejectPhase ? card.dataset.opposite : card.dataset.text;
+        card.querySelector('.front').style.backgroundColor = isRejectPhase ? '#abcfab' : '#ff9999'; /* Light green, Light red */
+    });
+    document.getElementById('reverse-button').style.backgroundColor = isRejectPhase ? '#ff9999' : '#abcfab'; /* Opposite of new card color */
+}
+
+cards.forEach((card, index) => {
+    card.addEventListener('click', () => {
+        if (card.style.display === 'none' || isAnimating) return;
+        if (!isFlipped) {
+            flipCards();
+        } else if (selectionCount < 4) {
+            isAnimating = true;
+            const isRejectPhase = document.getElementById('card-container').classList.contains('reject-phase');
+            const status = isRejectPhase ? 'red' : 'green';
+            const containerId = isRejectPhase ? 'rejected-container' : 'selected-container';
+            const iconClass = isRejectPhase ? 'rejected-icon' : 'selected-icon';
+            const text = card.dataset.text;
+            const opposite = card.dataset.opposite;
+            const category = card.dataset.category;
+            if (status === 'red') {
+                redSelections[category] = (redSelections[category] || 0) + 1;
+            } else {
+                greenSelections[category] = (greenSelections[category] || 0) + 1;
+            }
+            selectedCards.push({ card, status });
+            animateCardToContainer(card, containerId, iconClass, text, opposite, category, () => {
+                selectionCount++;
+                card.style.visibility = 'hidden';
+                allSelections.push({ text, category, status });
+                if (selectionCount === 4 || (selectionCount < 4 && progressContainer.children.length === 0)){
+                    const remainingCard = Array.from(cards).find(c => c.style.display !== 'none' && c.style.visibility !== 'hidden');
+                    if (remainingCard) {
+                        const neitherText = remainingCard.dataset.text;
+                        const neitherOpposite = remainingCard.dataset.opposite;
+                        const neitherCategory = remainingCard.dataset.category;
+                        animateCardToContainer(remainingCard, 'neither-container', 'neither-icon', neitherText, neitherOpposite, neitherCategory, () => {
                             currentSetIndex++;
                             displaySet();
                         });
-                        card.style.visibility = 'hidden';
-                        if (neitherCard) neitherCard.style.visibility = 'hidden';
-                        allSelections.push({ text: selectedText, category: category, status: 'green' });
-                    }, 300);
+                        remainingCard.style.visibility = 'hidden';
+                        allSelections.push({ text: neitherText, category: neitherCategory, status: 'grey' });
+                    } else {
+                        currentSetIndex++;
+                        displaySet();
+                    }
+                } else {
+                    instruction.innerText = "                                                     choose the card MOST like you\n                                                     (if none then reverse sentiment)\n\n\n\n";
+                    document.getElementById('undo-button').style.display = 'block';
+                    document.getElementById('reverse-button').style.display = (5 - selectionCount) >= 2 ? 'block' : 'none';
+                    document.getElementById('reverse-button').style.backgroundColor = isRejectPhase ? '#abcfab' : '#ff9999'; /* Opposite of current card color */
+                    isAnimating = false;
                 }
             });
-        });
-        document.getElementById('undo-button').addEventListener('click', undoRejection);
-        const autoProgressButton = document.getElementById('auto-progress');
-        autoProgressButton.addEventListener('click', () => {
-            autoProgressButton.disabled = true;
-            const interval = setInterval(() => {
-                if (progressContainer.children.length <= 6) {
-                    console.log('Auto Progress stopped: 6 or fewer blue boxes remaining');
-                    clearInterval(interval);
-                    return;
-                }
-                const instructionText = instruction.innerText;
-                if (instructionText === "Click anywhere to start the game") {
-                    document.body.click();
-                } else if (instructionText === "Click any card to flip all cards") {
-                    const visibleCards = Array.from(cards).filter(c => c.style.display !== 'none');
-                    if (visibleCards.length > 0) visibleCards[0].click();
-                } else if (instructionText === "Choose which option is LEAST like you") {
-                    const visibleCards = Array.from(cards).filter(c => c.style.visibility !== 'hidden');
-                    if (visibleCards.length > 0) visibleCards[0].click();
-                } else if (instructionText === "Which option is MOST like you") {
-                    const visibleCards = Array.from(cards).filter(c => c.style.display !== 'none' && c.style.visibility !== 'hidden');
-                    if (visibleCards.length > 0) visibleCards[0].click();
-                } else if (instructionText.includes("Please click on Continue")) {
-                    console.log('Auto Progress: Clicking Continue button');
-                    continueButton.click();
-                } else if (instructionText === "All sets completed!") {
-                    clearInterval(interval);
-                }
-            }, 300);
-        });
+        }
+    });
+});
+
+document.getElementById('reverse-button').addEventListener('click', reverseSentiment);
+document.getElementById('undo-button').addEventListener('click', undoRejection);
+
+const autoProgressButton = document.getElementById('auto-progress');
+autoProgressButton.addEventListener('click', () => {
+    autoProgressButton.disabled = true;
+    const interval = setInterval(() => {
+        const instructionText = instruction.innerText.trim();
+        if (progressContainer.children.length <= 8) {
+            console.log('Auto Progress stopped: 8 or fewer blue boxes remaining');
+            clearInterval(interval);
+            return;
+        }
+        if (instructionText === "Click any card to begin") {
+            const visibleCards = Array.from(cards).filter(c => c.style.display !== 'none');
+            if (visibleCards.length > 0) visibleCards[0].click(); // Flip the first card to start
+        } else if (instructionText !== "Click any card to begin") {
+            const visibleCards = Array.from(cards).filter(c => c.style.display !== 'none' && c.style.visibility !== 'hidden');
+            if (visibleCards.length > 0) {
+                visibleCards[0].click(); // Select first card
+                setTimeout(() => {
+                    if (selectionCount < 4 && visibleCards.length > 1) visibleCards[1].click(); // Select second card
+                    setTimeout(() => {
+                        if (selectionCount < 4 && visibleCards.length > 2) visibleCards[2].click(); // Select third card
+                        setTimeout(() => {
+                            if (selectionCount < 4 && visibleCards.length > 3) visibleCards[3].click(); // Select fourth card
+                        }, 300);
+                    }, 300);
+                }, 300);
+            }
+        } else if (instructionText.includes("When you are ready to start click continue")) {
+            continueButton.click();
+        } else if (instructionText === "Click continue to begin the game") {
+            continueButton.click();
+        } else if (instructionText.includes("Please click on Continue")) {
+            console.log('Auto Progress: Clicking Continue button');
+            continueButton.click();
+        } else if (instructionText === "All sets completed! Click Continue to proceed to the next phase.") {
+            clearInterval(interval);
+        }
+    }, 300);
+});
     </script>
 </body>
 </html>
