@@ -23,6 +23,19 @@
             flex-direction: column;
             align-items: center;
         }
+#strengthen-instruction {
+    position: absolute;
+    top: calc(50% + 150px); /* Adjusted to be below dropped cards (240px height / 2 + drop 20px + margin) */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    color: #333;
+    text-align: center;
+    white-space: nowrap;
+    display: none;
+    z-index: 1000;
+}
+
 #instruction {
     font-size: 18px;
     font-weight: bold;
@@ -43,6 +56,28 @@
     gap: 15px;
     position: relative;
     left: 140px; /* Shift 1.5 card widths (240px) to the right toward grey bricks */
+}
+.selected-card {
+    transform: translateY(20px) scale(0.9);
+    transition: transform 0.3s ease-in-out;
+    font-size: 14.4px; /* 90% of original 16px */
+    border: 3px solid;
+    box-sizing: border-box;
+}
+.selected-card.green {
+    border-color: #7b9c7b; /* Darker green for border */
+}
+.selected-card.red {
+    border-color: #cc6666; /* Darker red for border */
+}
+.selected-card.darkened .front {
+    font-weight: bold;
+}
+#card-container .selected-card.green .front {
+    background-color: #abcfab !important;
+}
+#card-container .selected-card.red .front {
+    background-color: #ff9999 !important;
 }
 .card-wrapper {
     width: 160px; /* Smaller width */
@@ -130,9 +165,9 @@ background: repeating-linear-gradient(
     top: 50%;
     transform: translateY(-50%);
     display: none; /* Hidden initially */
-    grid-template-columns: repeat(12, 42px);
-    gap: 2px;
-    width: 518px;
+    grid-template-columns: repeat(10, 40px); /* 10 columns wide */
+    gap: 18px; /* Increased spacing between rows and columns */
+    width: 488px; /* Adjusted for 10 columns of 40px + gaps */
     background-color: transparent;
 }
 #selected-container {
@@ -176,23 +211,44 @@ background: repeating-linear-gradient(
     gap: 4px;
     overflow: visible;
 }
-        .progress-icon {
-            width: 40px;
-            height: 20px;
-            background-color: #ADD8E6;
-            border-radius: 4px;
-            position: relative;
-            cursor: pointer;
-        }
+.progress-icon {
+    width: 40px; /* Narrower width for vertical orientation */
+    height: 70px; /* Taller height for vertical card-like stack */
+    background: repeating-linear-gradient(
+        60deg,
+        #1e90ff,
+        #1e90ff 6.5px, /* Finer stripes */
+        #24588c 5px,
+        #104e8b 10px
+    );
+    background-size: 10px 10px; /* Finer pattern repeat */
+    border-radius: 4px;
+    position: relative;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1); /* Simulates slight overlap/shadow for stack effect */
+}
+.progress-icon::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    background-size: inherit;
+    border-radius: 4px;
+    opacity: 0.5; /* Semi-transparent to show as overlapping card */
+    z-index: -1; /* Behind main icon for stack look */
+}
 .progress-icon:hover::after {
-    content: attr(title);
+    content: "Hand of cards";
     position: absolute;
     background-color: #333;
     color: white;
     padding: 5px;
     border-radius: 5px;
-    top: -30px;
-    left: 0; /* Left-justified for blue bricks */
+    top: -40px; /* Adjusted for taller icon */
+    left: 0;
     white-space: nowrap;
     z-index: 1000;
 }
@@ -205,6 +261,9 @@ background: repeating-linear-gradient(
     box-sizing: border-box;
     position: relative; /* Ensure dot positions relative to brick */
 }
+.selected-icon.darkened {
+    background-color: #7b9c7b; /* Dark green */
+}
 .rejected-icon {
     width: 40px;
     height: 20px;
@@ -213,6 +272,9 @@ background: repeating-linear-gradient(
     border-radius: 4px;
     box-sizing: border-box;
     position: relative; /* Ensure dot positions relative to brick */
+}
+.rejected-icon.darkened {
+    background-color: #cc6666; /* Dark red */
 }
         .neither-icon {
             width: 40px;
@@ -235,19 +297,19 @@ background: repeating-linear-gradient(
             pointer-events: none;
             display: block;
         }
-        #undo-button {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: -50px;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            background-color: #ddd;
-            border: none;
-            cursor: pointer;
-            display: none;
-        }
+#undo-button {
+    position: absolute;
+    top: -20%;
+    left: calc(50% - 150px);
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #ddd;
+    border: none;
+    cursor: pointer;
+    display: none;
+}
         #auto-progress {
             position: absolute;
             left: 50%;
@@ -290,7 +352,6 @@ background: repeating-linear-gradient(
             z-index: 1000;
             display: none; /* Hidden by default */
         }
-
         #continue-button {
             padding: 10px 20px;
             font-size: 16px;
@@ -310,18 +371,22 @@ background: repeating-linear-gradient(
             cursor: pointer;
             position: relative;
         }
-        .rejected-icon.marked::after,
-        .selected-icon.marked::after,
-        .neither-icon.marked::after {
-            content: '';
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            width: 8px;
-            height: 8px;
-            background-color: #000000; /* Black dot for marking */
-            border-radius: 50%;
-        }
+.neither-icon.marked::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 8px;
+    height: 8px;
+    background-color: #000000; /* Black dot for marking */
+    border-radius: 50%;
+}
+.rejected-icon.darkened {
+    background-color: #cc6666; /* Darker red */
+}
+.selected-icon.darkened {
+    background-color: #7b9c7b; /* Darker green */
+}
 .tooltip {
     position: absolute;
     background-color: #fff;
@@ -335,6 +400,9 @@ background: repeating-linear-gradient(
     transition: opacity 0.2s ease-in 0.2s;
     pointer-events: none;
     white-space: nowrap;
+}
+.rejected-icon.darkened .tooltip, .selected-icon.darkened .tooltip {
+    font-weight: bold;
 }
 .rejected-icon:hover .tooltip,
 .selected-icon:hover .tooltip {
@@ -352,20 +420,20 @@ background: repeating-linear-gradient(
 #neither-container .neither-icon .tooltip {
     color: #808080 !important; /* Mid-grey for grey brick tooltips */
 }
-
     </style>
 </head>
 <body>
     <div id="game-container">
         <div id="progress-container"></div>
         <div id="selected-container"></div>
-        <div id="instruction">Click anywhere to start the game</div>
-        <div id="timer-label">Click to add 60s</div>
+        <div id="instruction"></div>
+        <div id="timer-label"></div>
         <canvas id="timer-canvas" width="100" height="100" class="hidden"></canvas>
 <div id="card-container" class="hidden" style="display: none;">
+    <div id="strengthen-instruction">If a statement is particularly true, click on any selected card to strengthen it</div>
     <!-- Cards will be dynamically created after the second "Continue" click -->
      </div>
-<button id="undo-button">Bring back last card</button>
+<button id="undo-button">Undo last selection</button>
 <button id="reverse-button" style="position: absolute; top: -20%; left: calc(50% + 50px); padding: 10px 20px; border-radius: 20px;
 font-size: 16px; font-weight: bold; background-color: #abcfab; border: none; cursor: pointer;
 display: none; z-index: 1000;">Reverse Sentiment</button>
@@ -377,241 +445,242 @@ display: none; z-index: 1000;">Reverse Sentiment</button>
     </div>
     <div id="results-container"></div>
     <script>
-        const questionsData = [
-"People have always been there to help me handle my feelings.|People have not been there to help me handle my feelings.|ed",
-"I have gotten enough love and attention.|I have not gotten enough love and attention.|ed",
-"Mostly, I have had someone to depend on for advice and help with how I feel.|Mostly, I have not had someone to depend on for advice and help with how I feel.|ed",
-"I have mostly had someone to look after me, share themself with me, or care deeply about what happens to me.|I have mostly not had someone to look after me, share themself with me, or care deeply about what happens to me.|ed",
-"I have usually had someone who wanted to get close to me and spend a lot of time with me.|I have not or rarely had someone who wanted to get close to me and spend a lot of time with me.|ed",
-"People have mostly been there to give me warmth and kindness.|People have mostly not been there to give me warmth and kindness.|ed",
-"For much of my life, I have mostly felt that I am special to someone.|For much of my life, I have not felt that I am special to someone.|ed",
-"I have usually had someone who really listens to me and is tuned into my true needs and feelings.|I have usually not had someone who really listens to me or is tuned into my true needs and feelings.|ed",
-"I have usually had a strong person to give me advice or direction when I need it.|I have rarely had a strong person to give me advice or direction when I need it.|ed",
-"I don't tend to worry or think much about the fact that the people I love will die at some time.|I worry that the people I love will die soon, even though there is little medical reason for me to worry.|ab",
-"I am pretty secure with the people I am close to, I never think about them leaving me.|I find myself clinging to people I am close to, because I am afraid they will leave me.|ab",
-"I never worry that people I feel close to will leave me or abandon me.|I worry that people I feel close to will leave me or abandon me.|ab",
-"I feel that I have a stable base of support from someone who cares about me.|I feel that I lack a stable base of support from someone who cares about me.|ab",
-"I generally feel that important relationships will last.|I do not feel that important relationships will last; I expect them to end.|ab",
-"I tend to find partners who can be there for me in a committed way.|I feel addicted to partners who cannot be there for me in a committed way.|ab",
-"In the end, I will have people around me.|In the end, I will be alone.|ab",
-"When I feel someone I care for pulling away from me, I can handle it fine.|When I feel someone I care for pulling away from me, I can do crazy things.|ab",
-"When I am worried about people leaving me, I can give them the space they need.|Sometimes I am so worried about people leaving me that I drive them away.|ab",
-"I am quite happy when someone leaves me alone, even for a longer periods of time.|I become upset when someone leaves me alone, even for a short period of time.|ab",
-"I can count on people who I should be able to rely on to be there when I need them.|I cannot count on people who I should be able to rely on to be there when I need them.|ab",
-"When I let myself get really close to other people, it is because I can usually judge that they will be there when I need them.|I cannot let myself get really close to other people, because I cannot be sure they will always be there.|ab",
-"It seems that the important people in my life are stable fixtures.|It seems that the important people in my life are always coming and going.|ab",
-"I never think that the people I love might find someone else they prefer or leave me.|I worry a lot that the people I love will find someone else they prefer and leave me.|ab",
-"People close to me have been predictable: they have had stable tempraments, seldom angry, upset, selfish or fighting.|People close to me have been unpredictable: one moment they are nice to me, the next they are angry, upset, selfish or fighting.|ab",
-"I am pretty self-reliant.  I never worry about losing anyone.|I need other people so much that I worry about losing them.|ab",
-"I am happy expressing what I really feel and confident people close to me will accept me regardless.|I cannot be myself or express what I really feel, or people will leave me.|ab",
-"I do not think that people usually will try to take advantage of me.|I feel that people will take advantage of me.|ma",
-"I seldom feel that I have to protect myself from other people.|I often feel that I have to protect myself from other people.|ma",
-"I am happy to be open about who I am in the presence of other people, people are generally kind and accepting.|I am reluctant to let my guard down in the presence of other people, or else they will plan to hurt me.|ma",
-"If someone acts nicely towards me, I assume that they are just being kind.|If someone acts nicely towards me, I assume that they must be after something.|ma",
-"If someone betrays me that would be very unusual, it seldom happens.|It is only a matter of time before someone betrays me.|ma",
-"Most people think about others and want to help.|Most people only think about themselves.|ma",
-"I tend in general to trust people.|I have a great deal of difficulty trusting people.|ma",
-"I am seldom suspicious of other peoples motives.|I am quite suspicious of other peoples motives.|ma",
-"People are generally honest; they are usually what they appear to be.|Other people are rarely honest; they are usually not what they appear.|ma",
-"I don't usually think about other peoples ulterior motives.|I am usually on the lookout for peoples ulterior motives.|ma",
-"If I think someone is out to hurt me, I try to make up with them or avoid them.|If I think someone is out to hurt me, I try to hurt him or her first.|ma",
-"People don't have to prove themselves to me.  I generally trust people until proven otherwise.|People usually have to prove themselves to me before I can trust them.|ma",
-"I don't believe in setting up tests for other people, I trust that they are telling me the truth and are well-intentioned.|I set up tests for other people, to see if they are telling me the truth and are well-intentioned.|ma",
-"Co-operation is much more important than controlling people.  I believe in working with people.|I subscribe to the belief: Control or be controlled.|ma",
-"I feel forgiveness when I think about the ways I have been mistreated by other people during my life.|I get angry when I think about the ways I have been mistreated by other people during my life.|ma",
-"During my life, those close to me have supported me even when it didn't suit their own purposes.|During my life, those close to me have taken advantage of me or used me for their own purposes.|ma",
-"Important people in my life have never tried to hurt my feelings or physically, or sexually abused me.|Important people in my life have often tried to hurt my feelings or physically, or sexually abused me.|ma",
-"I fit in.|I do not fit in.|si",
-"I am pretty similar to many other people.|I am fundamentally different from other people.|si",
-"I know where I belong; I am happy in my group.|I do not belong; I am a loner.|si",
-"I seldom feel alienated from other people.|I feel alienated from other people.|si",
-"I almost never feel isolated and alone.|I feel isolated and alone.|si",
-"I usually confident within the groups I am part of.|I always feel on the outside of groups.|si",
-"Some people I am close to really understand me.|No one really understands me.|si",
-"My family was pretty similar to the families around us.|My family was always different from the families around us.|si",
-"I never feel as if I am an alien.|I sometimes feel as if I am an alien.|si",
-"If I disappeared tomorrow a lot of people would be affected.|If I disappeared tomorrow, no one would notice.|si",
-"Even with all my defects, I am confident I am a lovable person.|No one I desire could love me once they see my defects.|ds",
-"Despite my deepest secrets, I am confident that someone I desire would still want to be close to me.|No one I desire would want to stay close to me if they knew the real me.|ds",
-"In general people are not born flawed and defective. I was not born that way.|I am just born flawed and defective.|ds",
-"I expect I will be able to get a significant man or woman to respect me or feel that I am worthwhile.|No matter how hard I try, I doubt I will be able to get a significant man or woman to respect me or feel that I am worthwhile.|ds",
-"I am worthy of the love, attention, and respect of others.|I am unworthy of the love, attention, and respect of others.|ds",
-"I feel that I am lovable.|I feel that I am not lovable.|ds",
-"I am acceptable in my essence. I want others to see the real me.|I am unacceptable in very basic ways. I do not want others to see the real me.|ds",
-"If others found out about any of my defects that’s fine with me, its part of life.|If others found out about my basic defects, I could not face them.|ds",
-"When people like me I can understand why.|When people like me, I feel I am fooling them.|ds",
-"I tend not to spend time with people who are very critical of me or reject me.|Often I find that I want to spend time with people who are very critical of me or reject me.|ds",
-"I do not have inner secrets that I want to hide from people close to me.|I have inner secrets that I do not want people close to me to find out.|ds",
-"If my parents ever treated me coldly or did not love me enough, that is their responsibility not mine.|It is my fault that my parents could not love me enough.|ds",
-"I try to let people know the real me.|I do not let people know the real me.|ds",
-"I do not worry at all that my defects will be exposed.|One of my greatest fears is that my defects will be exposed.|ds",
-"I can understand how someone could love me.|I cannot understand how anyone could love me.|ds",
-"Almost everything I do at work is as good as other people can do.|Almost nothing I do at work is as good as other people can do.|fa",
-"I am pretty successful when it comes to achievement.|I am incompetent when it comes to achievement.|fa",
-"Most other people are not as capable as I am at work or in other things I do.|Most other people are more capable than I am at work or in other things I do.|fa",
-"I am a success.|I am a failure.|fa",
-"I am just as talented in my work as most people are at theirs.|I am not as talented in my work as most people are at theirs.|fa",
-"I am just as intelligent as most people when it comes to work.|I am not as intelligent as most people when it comes to work.|fa",
-"I am unbothered by any failures or inadequacies at work.|I am humiliated by my failures and inadequacies at work.|fa",
-"I seldom feel embarrassed around other people as a result of not measuring up to them in terms of what I have done.|I often feel embarrassed around other people, because I do not measure up to them in terms of what I have done.|fa",
-"If I compare the things I have done with others, I usually feel that I am more successful.|I often compare the things I have done with others and feel that they are more successful.|fa",
-"I feel fully capable of getting by on my own in everyday life.|I do not feel capable of getting by on my own in everyday life.|di",
-"I do not need other people to help me get by.|I need other people to help me get by.|di",
-"I feel I can cope well by myself.|I do not feel I can cope well by myself.|di",
-"I believe that I can take care of myself better than other people can take care of me.|I believe that other people can take care of me better than I can take care of myself.|di",
-"I have no problem tackling new tasks outside of work and seldom need anyone to guide me.|I have trouble tackling new tasks outside of work unless I have someone to guide me.|di",
-"I do not think of myself as a dependent person when it comes to getting through the days and weeks.|I think of myself as a dependent person when it comes to getting through the days and weeks.|di",
-"I usually succeed in most things I try, even outside of work.|I screw up everything I try, even outside of work.|di",
-"I am competent in most areas of life.|I am inept in most areas of life.|di",
-"If I trust my own judgment in everyday situations I will make the right decision.|If I trust my own judgment in everyday situations I will make the wrong decision.|di",
-"I have common sense.|I lack common sense.|di",
-"My judgment can be relied on in everyday situations.|My judgment cannot be relied on in everyday situations.|di",
-"I feel confident about my ability to solve everyday problems.|I do not feel confident about my ability to solve everyday problems.|di",
-"I seldom need someone to rely on to give me advice about practical issues.|I need someone I can rely on to give me advice about practical issues.|di",
-"I feel fully adult when it comes to handling the problems of everyday life.|I feel more like a child than an adult when it comes to handling the problems of everyday life.|di",
-"I find the responsibilities of everyday life easy to handle.|I find the responsibilities of everyday life overwhelming.|di",
-"I almost never have the feeling that something bad is about to happen.|I cannot seem to escape the feeling that something bad is about to happen.|vu",
-"I don't tend to think that a disaster (criminal, financial, or medical) could strike at any moment.|I feel that a disaster (criminal, financial, or medical) could strike at any moment.|vu",
-"I never worry about becoming a street person or vagrant.|I worry about becoming a street person or vagrant.|vu",
-"I never worry about being attacked.|I worry about being attacked.|vu",
-"I do not take any precautions to avoid getting sick or hurt.|I take great precautions to avoid getting sick or hurt.|vu",
-"I do not worry or even think about developing a serious illness.|I worry that I am developing a serious illness even though nothing has been diagnosed.|vu",
-"I am not a fearful person.|I am a fearful person.|vu",
-"I do not worry much about the bad things happening in the world like crime or pollution.|I worry a lot about the bad things happening in the world like crime or pollution.|vu",
-"I never think that I might go crazy.|I feel that I might go crazy.|vu",
-"I never feel that I am going to have an anxiety attack.|I often feel that I am going to have an anxiety attack.|vu",
-"I never worry or think that I might have a heart attack or cancer until there is medical reason to.|I worry that I might have a heart attack or cancer even though there is little medical reason to.|vu",
-"I feel the world is a safe place.|I feel the world is a dangerous place.|vu",
-"I have been able to separate myself from my parents, I make my own decisions.|I have not been able to separate myself from my parents the way other people my age seem to.|eu",
-"My parents and I have appropriate separation from each others lives and problems.|My parents and I tend to be overinvolved in each others lives and problems.|eu",
-"My parents and I are happy to keep our intimate details from each other, appropriate distance is healthy.|It is very difficult for my parents and me to keep intimate details from each other, without feeling betrayed or guilty.|eu",
-"I speak to my parents regularly but if there is a gap in communication that is fine on both sides.|My parents and I have to speak to each other almost every day, or else one of us feels guilty, disappointed, or alone.|eu",
-"I have a separate identity from my parents and partner.|I often feel that I do not have a separate identity from my parents or partner.|eu",
-"My parents are living their lives — I am living my own, separate life.|I often feel as if my parents are living through me — I do not have a life of my own.|eu",
-"It is normal for me to maintain some distance from the people I am really close to; I have no trouble keeping a separate sense of myself.|It is very difficult for me to maintain any distance from the people I am really close to; I have trouble keeping any separate sense of myself.|eu",
-" I know who I am and what I want, my relationship with my partner or parents does not affect that.|I am so involved with my partner or parents that I do not really know who I am or what I want.|eu",
-"I have no trouble separating my point of view or opinion from that of my parents or partner.|I have trouble separating my point of view or opinion from that of my parents or partner.|eu",
-"I feel that I have appropriate privacy when it comes to my parents or partner.|I feel that I have no privacy when it comes to my parents or partner.|eu",
-"I feel that my parents would fine if I lived away from them on my own.|I feel that my parents would be hurt by me living away from them on my own.|eu",
-"I tell other people what I want, negotiation is healthy.|I let other people have their way, because I fear what might happen.|sb",
-"I believe that if I do what I want, that is a reasonable thing to do.|I believe that if I do what I want, I am only asking for trouble.|sb",
-"I do not have to give in to other peoples wishes, they will not retaliate or reject me in some way.|I have no choice but to give in to other peoples wishes, or else they will retaliate or reject me in some way.|sb",
-"In relationships, I do not let the other person have the upper hand.|In relationships, I let the other person have the upper hand.|sb",
-"I have not let others make choices for me, I know what I want for myself.|I have let others make choices for me, so I really do not know what I want for myself.|sb",
-"I feel the major decisions in my life were my own.|I feel the major decisions in my life were not really my own.|sb",
-"I do not worry about pleasing other people, I do not worry they will reject me.|I worry about pleasing other people, so they will not reject me.|sb",
-"I have no trouble demanding that my rights be respected and that my feelings be considered.|I have trouble demanding that my rights be respected and that my feelings be considered.|sb",
-"I am happy to show my anger directly, I do not try to get back at people in little ways.|I get back at people in little ways instead of showing my anger directly.|sb",
-"I do not try to avoid confrontations if they are appropriate.|I will go to greater lengths than most people to avoid confrontations.|sb",
-"I do not feel guilty to put my needs forward as important as other peoples.|I put others needs before my own, or else I feel guilty.|ss",
-"I tend not to feel guilty if I let other people down or disappoint them.|I feel guilty when I let other people down or disappoint them.|ss",
-"I get more from other people than I give back in return.|I give more to other people than I get back in return.|ss",
-"I not usually the one who ends up taking care of the people I am close to.|I am the one who usually ends up taking care of the people I am close to.|ss",
-"Even if I loved someone very much, there are limits to what I could put up with.|There is almost nothing I could not put up with if I loved someone.|ss",
-"I am a good person because I take care of myself first, to let me then think of others.|I am a good person because I think of others more than of myself.|ss",
-"At work, I am seldom the one to volunteer to do extra tasks or to put in extra time.|At work, I am usually the one to volunteer to do extra tasks or to put in extra time.|ss",
-"When I am very busy, I have no problem ignoring others problems until I have time.|No matter how busy I am, I can always find time for others.|ss",
-"I have specific expectations and needs, my needs are appropriate.|I can get by on very little, because my needs are minimal.|ss",
-"I can be happy even when those around me are not.|I am only happy when those around me are happy.|ss",
-"I always make time for myself before also taking time to do things for the people that I care about.|I am so busy doing for the people that I care about that I have little time for myself.|ss",
-"I have not usually been the one who listens to everyone elses problems.|I have always been the one who listens to everyone elses problems.|ss",
-"I am happier to receive a present than to give one.|I am happier to give a present than to receive one.|ss",
-"Other people see me as doing too much for myself and not enough for others.|Other people see me as doing too much for others and not enough for myself.|ss",
-"I feel I give enough to others.|No matter how much I give, I feel it is never enough.|ss",
-"If I do what I want, I usually feel comfortable with my choices.|If I do what I want, I feel very uncomfortable.|ss",
-"It is not difficult for me to ask others to take care of my needs.|It is very difficult for me to ask others to take care of my needs.|ss",
-"I do not worry about losing control of my actions.|I worry about losing control of my actions.|ei",
-"I have self-control; I do not worry that I might hurt someone in any way even if I get very angry.|I worry that I might seriously physically or emotionally hurt someone if my anger gets out of control.|ei",
-"I do not need to concentrate on controlling how I feel or act, I will not do something impetuous or bad.|I must control how I feel and be careful in how I act, or something bad is likely to happen.|ei",
-"I do not tend to experience anger or resentment building up inside of me.|A lot of anger and resentment builds up inside of me that I do not express.|ei",
-"I have no problem showing positive feelings to others (eg, being nice first, showing I care).|I am too self-conscious to show positive feelings to others (eg, being nice first, showing I care).|ei",
-"I find it enjoyable to express my feelings to others.|I find it embarrassing to express my feelings to others.|ei",
-"I find it easy to be warm or to start fun conversations without thinking about it first.|I find it hard to be warm or to start fun conversations without thinking about it first.|ei",
-"I do not have to try  to control myself so much that people think I am unemotional.|I control myself so much that people think I am unemotional.|ei",
-"People do not see me as uptight and know I am happy to show my feelings.|People see me as uptight and think that I do not show my feelings.|ei",
-"I am happy to do a reasonable job; I do not need to be best all the time.|I must be the best at most of what I do; I cannot accept second best.|us",
-"I am not a perfectionist|I strive to keep almost everything in perfect order.|us",
-"I don't worry overmuch about my appearance.|I must look my best most of the time.|us",
-"Good enough is sufficient|I try to do my best; I cannot settle for good enough.|us",
-"There is time for both relaxation and to accomplish my goals.|I have so much to accomplish that there is almost no time to really relax.|us",
-"What I am doing is good enough; I can get better but I'm not obsessed with it.|Almost nothing I do is quite good enough; I can always do better.|us",
-"If I miss a few of my responsibilities, that is ok.|I must meet all my responsibilities.|us",
-"I do not feel pressure for me to achieve and get things done.|I feel there is constant pressure for me to achieve and get things done.|us",
-"I have a good balance between my relationships and my work.|My relationships suffer because I push myself so hard.|us",
-"I take care of my health first, even if this impact my ability to do other things.|My health is suffering because I put myself under so much pressure to do well.|us",
-"My pleasure and happiness is important, even if standards slip a bit sometimes.|I often sacrifice pleasure and happiness to meet my own standards.|us",
-"When I make a mistake, I can learn from it and criticism is not useful.|When I make a mistake, I deserve strong criticism.|us",
-"I do not feel on the hook for my mistakes, there are often valid reasons for the failure.|I cannot let myself off the hook easily or make excuses for my mistakes.|us",
-"I am not a very competitive person.|I am a very competitive person.|us",
-"I do not tend to put much emphasis on money or status.|I put a good deal of emphasis on money or status.|us",
-"I do not have to be Number One, in terms of my performance.|I have to be Number One, in terms of my performance.|us",
-"I can accept no for an answer when I want something from other people.|I have trouble accepting no for an answer when I want something from other people.|et",
-"I tend not to get angry or irritable if I cannot get what I want.|I often get angry or irritable if I cannot get what I want.|et",
-"I am similar to everyone else and should therefore accept the rules placed on other people.|I am special and should not have to accept many of the rules placed on other people.|et",
-"It is reasonable for me to be constrained or kept from doing what I want when appropriate.|I hate to be constrained or kept from doing what I want.|et",
-"I should follow the normal conventions and rules that other people do.|I feel that I should not have to follow the normal conventions and rules that other people do.|et",
-"What I have to offer is of no greater value than the contributions of others.|What I have to offer is usually of greater value than the contributions of others.|et",
-"I try not to put my needs ahead of the needs of others.|I usually put my needs ahead of the needs of others.|et",
-"I am not so involved in my own plans and actions that I cannot find time to give to friends or family.|I find that I am so involved in my own plans and actions that I often do not have time to give to friends or family.|et",
-"People do not find me to be very controlling about how things are done.|People tell me I am very controlling about how things are done.|et",
-"I can accept it when people will not do what I ask of them.|I get irritated when people will not do what I ask of them.|et",
-"I do not mind other people telling me what to do.|I cannot tolerate other people telling me what to do.|et",
-"I have control over my drinking, eating, and other potentially problem behaviors.|I have difficulty getting myself to stop drinking, overeating, or other problem behaviors.|is",
-"I can discipline myself to complete routine or boring tasks.|I cannot discipline myself to complete routine or boring tasks.|is",
-"I do not carry through on impulses or express emotions that get me into trouble or hurt other people.|I tend to carry through on impulses and express emotions that get me into trouble or hurt other people.|is",
-"If I cannot reach a goal, I can persist and keep working toward it.|If I cannot reach a goal, I become easily frustrated and give up.|is",
-"I find it easy to put off what I want right now in order to get what I want in the future.|I find it hard to put off what I want right now in order to get what I want in the future.|is",
-"Once I start to feel angry, I can usually control it.|Once I start to feel angry, I usually just cannot control it.|is",
-"I do not overdo things, I know when things are bad for me and I stop.|I tend to overdo things, even though I know they are bad for me.|is",
-"I do not get bored very easily.|I get bored very easily.|is",
-"When tasks become difficult, I press on until I complete them.|When tasks become difficult, I usually stop and cannot complete them.|is",
-"I can concentrate for a fair period on any task.|I cannot concentrate on anything for too long.|is",
-"I can force myself to do things I do not enjoy, when I know it is for my own good.|I cannot force myself to do things I do not enjoy, even when I know it is for my own good.|is",
-"I have control of my temper, slight offenses do not bother me.|I lose my temper at the slightest offense.|is",
-"I have usually been able to stick to my resolutions.|I have rarely been able to stick to my resolutions.|is",
-"I usually can hold back from showing people how I feel when appropriate to do so.|I usually cannot hold back from showing people how I feel, no matter what the cost may be.|is",
-"I seldom do things without thinking that I later regret.|I often do things without thinking that I later regret.|is",
-"It is not that important to me to be liked by almost everyone I know.|It is important to me to be liked by almost everyone I know.|as",
-"I do not change myself depending on the people I am with, people should like me as I am.|I change myself depending on the people I am with, so they will like me more.|as",
-"I do not try to fit in, I am who I am.|I try hard to fit in.|as",
-"My feelings about myself are not based on how other people view me.|My feelings about myself are based mostly on how other people view me.|as",
-"Having money and knowing important people is not a big part of making me feel worthwhile.|Having money and knowing important people make me feel worthwhile.|as",
-"I do not spend a lot of time on my physical appearance to try to get people value me more.|I spend a lot of time on my physical appearance so people value me.|as",
-"My successes are valuable to me whether or not other people notice them.|My successes are most valuable to me when other people notice them.|as",
-"I am never so focused on fitting in that  I do not know who I am.|I am so focused on fitting in that sometimes I do not know who I am.|as",
-"When setting my own goals, I seldom think about how others will view them.|When setting my own goals, I usually thinking about how others will view them.|as",
-"When I look back at my life decisions, I see that getting other peoples approval was not part of the decision.|When I look back at my life decisions, I see that getting other peoples approval was an important part of the decision.|as",
-"If I do not like someone, I do not care if they like me or not.|Even if I do not like someone, I still want him or her to like me.|as",
-"I do not feel less important if I get less attention from others.|Unless I get a lot of attention from others, I feel less important.|as",
-"When I am introduced, or make remarks at a meeting, the respect and admiration that follows is unimportant to me.|When I am introduced, or make remarks at a meeting, I enjoy the respect and admiration that follows.|as",
-"Lots of praise and compliments have little impact on how I feel about myself.|Lots of praise and compliments make me feel like a worthwhile person.|as",
-"When things seem to be going well, I feel that it is part of building something lasting.|Even when things seem to be going well, I feel that it is only temporary.|np",
-"If something good happens, I do not worry that something bad is likely to follow.|If something good happens, I worry that something bad is likely to follow.|np",
-"In any project something will almost always go wrong, you can fix it so don't worry.|You cannot be too careful; something will almost always go wrong.|np",
-"The money I have worked for is secure and I will not lose it.|No matter how hard I work, I worry that I could lose all my money.|np",
-"I will make some wrong decisions but they are not a disaster and can be changed.|I worry that a wrong decision could lead to disaster.|np",
-"I do not obsess over minor decisions, any mistake can be easily fixed.|I can obsess over minor decisions, because making a mistake seems so serious.|np",
-"It is better assuming that things will work out for me, if things go wrong I can fix them and it will work in the end.|It is better assuming that things will not work out for me, that way I do not feel disappointed if things go wrong.|np",
-"I focus more on the positive aspects of life and of events than on the negative.|I focus more on the negative aspects of life and of events than on the positive.|np",
-"I tend to be optimistic.|I tend to be pessimistic.|np",
-"People close to me do not consider me a worrier.|People close to me consider me a worrier.|np",
-"If people get enthusiastic about something, I enjoy it and join in on their enthusiasm.|If people get too enthusiastic about something, I become uncomfortable and feel like warning them of what could go wrong.|np",
-"If I make a mistake, I deserve to be given a second chance.|If I make a mistake, I deserve to be punished.|pu",
-"If I do not try my hardest, I should expect to still do ok.|If I do not try my hardest, I should expect to lose out.|pu",
-"Everyone makes a mistakes.  If I make one that’s ok.|There is no excuse if I make a mistake.|pu",
-"People who do not pull their own weight should be understood and supported to do better.|People who do not pull their own weight should get punished in some way.|pu",
-"I usually accept the excuses other people make, their reasons are often good and people mostly want to do their best.|Usually I do not accept the excuses other people make. They are just not willing to accept responsibility and suffer what happens next.|pu",
-"If I do not do the job, I should be supported to do the job better, not punished.|If I do not do the job, I should suffer whatever happens next.|pu",
-"I do not usually think about my mistakes, if I do it is with curiosity and to learn.|I often think about my mistakes and feel angry with myself.|pu",
-"When people do something bad, I am happy to say, Forgive and forget.|When people do something bad, I have trouble applying the phrase, Forgive and forget.|pu",
-"When someone has apologized, I do not hold a grudge.|I hold grudges, even after someone has apologized.|pu",
-"If I think someone has been let off the hook too easily, I don't worry about it.|I get upset when I think someone has been let off the hook too easily.|pu",
-"When people make excuses for themselves or blame other people for their problems I am sympathetic.|I get angry when people make excuses for themselves, or blame other people for their problems.|pu",
-"When I make a mistake it matters why; when I do something wrong responsibility should be shared.|It does not matter why I make a mistake; when I do something wrong, I should pay the price.|pu",
-"I do not beat-up on myself for things I screw up.|I beat-up on myself a lot for things I screw up.|pu",
-"I am a not bad person and do not deserve to be punished|I am a bad person who deserves to be punished.|pu"
+        // Hard-coded text and parameters
+        const QUESTIONS_DATA = [
+"People have not been there to help me handle my feelings. | People have always been there to help me handle my feelings.|ed",
+"I have not gotten enough love and attention. | I have gotten enough love and attention.|ed",
+"Mostly, I have not had someone to depend on for advice and help with how I feel. | Mostly, I have had someone to depend on for advice and help with how I feel.|ed",
+"I have mostly not had someone to look after me, share themself with me, or care deeply about what happens to me. | I have mostly had someone to look after me, share themself with me, or care deeply about what happens to me.|ed",
+"I have not or rarely had someone who wanted to get close to me and spend a lot of time with me. | I have usually had someone who wanted to get close to me and spend a lot of time with me.|ed",
+"People have mostly not been there to give me warmth and kindness. | People have mostly been there to give me warmth and kindness.|ed",
+"For much of my life, I have not felt that I am special to someone. | For much of my life, I have mostly felt that I am special to someone.|ed",
+"I have usually not had someone who really listens to me or is tuned into my true needs and feelings. | I have usually had someone who really listens to me and is tuned into my true needs and feelings.|ed",
+"I have rarely had a strong person to give me advice or direction when I need it. | I have usually had a strong person to give me advice or direction when I need it.|ed",
+"I worry that the people I love will die soon, even though there is little medical reason for me to worry. | I don't tend to worry or think much about the fact that the people I love will die at some time.|ab",
+"I find myself clinging to people I am close to, because I am afraid they will leave me. | I am pretty secure with the people I am close to, I never think about them leaving me.|ab",
+"I worry that people I feel close to will leave me or abandon me. |I never worry that people I feel close to will leave me or abandon me.e|a",
+"I feel that I lack a stable base of support from someone who cares about me. | I feel that I have a stable base of support from someone who cares about me.|ab",
+"I do not feel that important relationships will last; I expect them to end. | I generally feel that important relationships will last.|ab",
+"I feel addicted to partners who cannot be there for me in a committed way. | I tend to find partners who can be there for me in a committed way.|ab",
+"In the end, I will be alone. | In the end, I will have people around me.|ab",
+"When I feel someone I care for pulling away from me, I can do crazy things. | When I feel someone I care for pulling away from me, I can handle it fine.|ab",
+"Sometimes I am so worried about people leaving me that I drive them away. | When I am worried about people leaving me, I can give them the space they need.|ab",
+"I become upset when someone leaves me alone, even for a short period of time. | I am quite happy when someone leaves me alone, even for a longer periods of time.|ab",
+"I cannot count on people who I should be able to rely on to be there when I need them. | I can count on people who I should be able to rely on to be there when I need them.|ab",
+"I cannot let myself get really close to other people, because I cannot be sure they will always be there. | When I let myself get really close to other people, it is because I can usually judge that they will be there when I need them.|ab",
+"It seems that the important people in my life are always coming and going. | It seems that the important people in my life are stable fixtures.|ab",
+"I worry a lot that the people I love will find someone else they prefer and leave me. | I never think that the people I love might find someone else they prefer or leave me.|ab",
+"People close to me have been unpredictable: one moment they are nice to me, the next they are angry, upset, selfish or fighting. | People close to me have been predictable: they have had stable tempraments, seldom angry, upset, selfish or fighting.|ab",
+"I need other people so much that I worry about losing them. | I am pretty self-reliant.  I never worry about losing anyone.|ab",
+"I cannot be myself or express what I really feel, or people will leave me. | I am happy expressing what I really feel and confident people close to me will accept me regardless.|ab",
+"I feel that people will take advantage of me. | I do not think that people usually will try to take advantage of me.|ma",
+"I often feel that I have to protect myself from other people. | I seldom feel that I have to protect myself from other people.|ma",
+"I am reluctant to let my guard down in the presence of other people, or else they will plan to hurt me. | I am happy to be open about who I am in the presence of other people, people are generally kind and accepting.|ma",
+"If someone acts nicely towards me, I assume that they must be after something. | If someone acts nicely towards me, I assume that they are just being kind.|ma",
+"It is only a matter of time before someone betrays me. | If someone betrays me that would be very unusual, it seldom happens.|ma",
+"Most people only think about themselves. | Most people think about others and want to help.|ma",
+"I have a great deal of difficulty trusting people. | I tend in general to trust people.|ma",
+"I am quite suspicious of other peoples motives. | I am seldom suspicious of other peoples motives.|ma",
+"Other people are rarely honest; they are usually not what they appear. | People are generally honest; they are usually what they appear to be.|ma",
+"I am usually on the lookout for peoples ulterior motives. | I don't usually think about other peoples ulterior motives.|ma",
+"If I think someone is out to hurt me, I try to hurt him or her first. | If I think someone is out to hurt me, I try to make up with them or avoid them.|ma",
+"People usually have to prove themselves to me before I can trust them. | People don't have to prove themselves to me.  I generally trust people until proven otherwise.|ma",
+"I set up tests for other people, to see if they are telling me the truth and are well-intentioned. | I don't believe in setting up tests for other people, I trust that they are telling me the truth and are well-intentioned.|ma",
+"I subscribe to the belief: Control or be controlled. | Co-operation is much more important than controlling people.  I believe in working with people.|ma",
+"I get angry when I think about the ways I have been mistreated by other people during my life. | I feel forgiveness when I think about the ways I have been mistreated by other people during my life.|ma",
+"During my life, those close to me have taken advantage of me or used me for their own purposes. | During my life, those close to me have supported me even when it didn't suit their own purposes.|ma",
+"Important people in my life have often tried to hurt my feelings or physically, or sexually abused me. | Important people in my life have never tried to hurt my feelings or physically, or sexually abused me.|ma",
+"I do not fit in. | I fit in.|si",
+"I am fundamentally different from other people. | I am pretty similar to many other people.|si",
+"I do not belong; I am a loner. | I know where I belong; I am happy in my group.|si",
+"I feel alienated from other people. | I seldom feel alienated from other people.|si",
+"I feel isolated and alone. | I almost never feel isolated and alone.|si",
+"I always feel on the outside of groups. | I usually confident within the groups I am part of.|si",
+"No one really understands me. | Some people I am close to really understand me.|si",
+"My family was always different from the families around us. | My family was pretty similar to the families around us.|si",
+"I sometimes feel as if I am an alien. | I never feel as if I am an alien.|si",
+"If I disappeared tomorrow, no one would notice. | If I disappeared tomorrow a lot of people would be affected.|si",
+"No one I desire could love me once they see my defects. | Even with all my defects, I am confident I am a lovable person.|ds",
+"No one I desire would want to stay close to me if they knew the real me. | Despite my deepest secrets, I am confident that someone I desire would still want to be close to me.|ds",
+"I am just born flawed and defective. | In general people are not born flawed and defective. I was not born that way.|ds",
+"No matter how hard I try, I doubt I will be able to get a significant man or woman to respect me or feel that I am worthwhile. | I expect I will be able to get a significant man or woman to respect me or feel that I am worthwhile.|ds",
+"I am unworthy of the love, attention, and respect of others. | I am worthy of the love, attention, and respect of others.|ds",
+"I feel that I am not lovable. | I feel that I am lovable.|ds",
+"I am unacceptable in very basic ways. I do not want others to see the real me. | I am acceptable in my essence. I want others to see the real me.|ds",
+"If others found out about my basic defects, I could not face them. | If others found out about any of my defects that’s fine with me, its part of life.|ds",
+"When people like me, I feel I am fooling them. | When people like me I can understand why.|ds",
+"Often I find that I want to spend time with people who are very critical of me or reject me. | I tend not to spend time with people who are very critical of me or reject me.|ds",
+"I have inner secrets that I do not want people close to me to find out. | I do not have inner secrets that I want to hide from people close to me.|ds",
+"It is my fault that my parents could not love me enough. | If my parents ever treated me coldly or did not love me enough, that is their responsibility not mine.|ds",
+"I do not let people know the real me. | I try to let people know the real me.|ds",
+"One of my greatest fears is that my defects will be exposed. | I do not worry at all that my defects will be exposed.|ds",
+"I cannot understand how anyone could love me. | I can understand how anyone could love me.|ds",
+"Almost nothing I do at work is as good as other people can do. | Almost everything I do at work is as good as other people can do.|fa",
+"I am incompetent when it comes to achievement. | I am pretty successful when it comes to achievement.|fa",
+"Most other people are more capable than I am at work or in other things I do. | Most other people are not as capable as I am at work or in other things I do.|fa",
+"I am a failure. | I am a success.|fa",
+"I am not as talented in my work as most people are at theirs. | I am just as talented in my work as most people are at theirs.|fa",
+"I am not as intelligent as most people when it comes to work. | I am just as intelligent as most people when it comes to work.|fa",
+"I am humiliated by my failures and inadequacies at work. | I am unbothered by any failures or inadequacies at work.|fa",
+"I often feel embarrassed around other people, because I do not measure up to them in terms of what I have done. | I seldom feel embarrassed around other people as a result of not measuring up to them in terms of what I have done.|fa",
+"I often compare the things I have done with others and feel that they are more successful. | If I compare the things I have done with others, I usually feel that I am more successful.|fa",
+"I do not feel capable of getting by on my own in everyday life. | I feel fully capable of getting by on my own in everyday life.|di",
+"I need other people to help me get by. | I do not need other people to help me get by.|di",
+"I do not feel I can cope well by myself. | I feel I can cope well by myself.|di",
+"I believe that other people can take care of me better than I can take care of myself. | I believe that I can take care of myself better than other people can take care of me.|di",
+"I have trouble tackling new tasks outside of work unless I have someone to guide me. | I have no problem tackling new tasks outside of work and seldom need anyone to guide me.|di",
+"I think of myself as a dependent person when it comes to getting through the days and weeks. | I do not think of myself as a dependent person when it comes to getting through the days and weeks.|di",
+"I screw up everything I try, even outside of work. | I usually succed in most things I try, even outside of work.|di",
+"I am inept in most areas of life. | I am competent in most areas of life.|di",
+"If I trust my own judgment in everyday situations I will make the wrong decision. | If I trust my own judgment in everyday situations I will make the right decision.|di",
+"I lack common sense. | I have common sense.|di",
+"My judgment cannot be relied on in everyday situations. | My judgment can be relied on in everyday situations.|di",
+"I do not feel confident about my ability to solve everyday problems. | I feel confident about my ability to solve everyday problems.|di",
+"I need someone I can rely on to give me advice about practical issues. | I seldom need someone to rely on to give me advice about practical issues.|di",
+"I feel more like a child than an adult when it comes to handling the problems of everyday life. | I feel fully adult when it comes to handling the problems of everyday life.|di",
+"I find the responsibilities of everyday life overwhelming. | I find the responsibilities of everyday life easy to handle.|di",
+"I cannot seem to escape the feeling that something bad is about to happen. | I almost never have the feeling that something bad is about to happen.|vu",
+"I feel that a disaster (criminal, financial, or medical) could strike at any moment. | I don't tend to think that a disaster (criminal, financial, or medical) could strike at any moment.|vu",
+"I worry about becoming a street person or vagrant. | I never worry about becoming a street person or vagrant.|vu",
+"I worry about being attacked. | I never worry about being attacked.|vu",
+"I take great precautions to avoid getting sick or hurt. | I do not take any precautions to avoid getting sick or hurt.|vu",
+"I worry that I am developing a serious illness even though nothing has been diagnosed. | I do not worry or even think about developing a serious illness.|vu",
+"I am a fearful person. | I am not a fearful person.|vu",
+"I worry a lot about the bad things happening in the world like crime or pollution. | I do not worry about the bad things happening in the world like crime or pollution.|vu",
+"I feel that I might go crazy. | I never think that I might go crazy.|vu",
+"I often feel that I am going to have an anxiety attack. | I never feel that I am going to have an anxiety attack.|vu",
+"I worry that I might have a heart attack or cancer even though there is little medical reason to. | I never worry or think that I might have a heart attack or cancer until there is medical reason to.|vu",
+"I feel the world is a dangerous place. | I feel the world is a safe place.|vu",
+"I have not been able to separate myself from my parents the way other people my age seem to. | I have been able to separate myself from my parents, I make my own decisions.|eu",
+"My parents and I tend to be overinvolved in each others lives and problems. | My parents and I have appropriate separation from each others lives and problems.|eu",
+"It is very difficult for my parents and me to keep intimate details from each other, without feeling betrayed or guilty. | My parents and I are happy to keep our intimate details from each other, appropriate distance is healthy.|eu",
+"My parents and I have to speak to each other almost every day, or else one of us feels guilty, disappointed, or alone. | I speak to my parents regularly but if there is a gap in communication that is fine on both sides.|eu",
+"I often feel that I do not have a separate identity from my parents or partner. | I have a separate identity from my parents and partner.|eu",
+"I often feel as if my parents are living through me — I do not have a life of my own. | My parents are living their lives — I am living my own, separate life.|eu",
+"It is very difficult for me to maintain any distance from the people I am really close to; I have trouble keeping any separate sense of myself. | It is normal for me to maintain some distance from the people I am really close to; I have no trouble keeping a separate sense of myself.|eu",
+"I am so involved with my partner or parents that I do not really know who I am or what I want. |  I know who I am and what I want, my relationship with my partner or parents does not affect that.|eu",
+"I have trouble separating my point of view or opinion from that of my parents or partner. | I have no trouble separating my point of view or opinion from that of my parents or partner.|eu",
+"I feel that I have no privacy when it comes to my parents or partner. | I feel that I have appropriate privacy when it comes to my parents or partner.|eu",
+"I feel that my parents would be hurt by me living away from them on my own. | I feel that my parents would fine if I lived away from them on my own.|eu",
+"I let other people have their way, because I fear what might happen. | I tell other people what I want, negotiation is healthy.|sb",
+"I believe that if I do what I want, I am only asking for trouble. | I believe that if I do what I want, that is a reasonable thing to do.|sb",
+"I have no choice but to give in to other peoples wishes, or else they will retaliate or reject me in some way. | I do not have to give in to other peoples wishes, they will not retaliate or reject me in some way.|sb",
+"In relationships, I let the other person have the upper hand. | In relationships, I do not let the other person have the upper hand.|sb",
+"I have let others make choices for me, so I really do not know what I want for myself. | I have not let others make choices for me, I know what I want for myself.|sb",
+"I feel the major decisions in my life were not really my own. | I feel the major decisions in my life were my own.|sb",
+"I worry about pleasing other people, so they will not reject me. | I do not worry about pleasing other people, I do not worry they will reject me.|sb",
+"I have trouble demanding that my rights be respected and that my feelings be considered. | I have no trouble demanding that my rights be respected and that my feelings be considered.|sb",
+"I get back at people in little ways instead of showing my anger directly. | I am happy to show my anger directly, I do not try to get back at people in little ways.|sb",
+"I will go to greater lengths than most people to avoid confrontations. | I do not try to avoid confrontations if they are appropriate.|sb",
+"I put others needs before my own, or else I feel guilty. | I do not feel guilty to put my needs forward as important as other peoples.|ss",
+"I feel guilty when I let other people down or disappoint them. | I tend not to feel guilty if I let other people down or disappoint them.|ss",
+"I give more to other people than I get back in return. | I get more from other people than I give back in return.|ss",
+"I am the one who usually ends up taking care of the people I am close to. | I not usually the one who ends up taking care of the people I am close to.|ss",
+"There is almost nothing I could not put up with if I loved someone. | Even if I loved someone very much, there are limits to what I could put up with.|ss",
+"I am a good person because I think of others more than of myself. | I am a good person because I take care of myself first, to let me then think of others.|ss",
+"At work, I am usually the one to volunteer to do extra tasks or to put in extra time. | At work, I am seldom the one to volunteer to do extra tasks or to put in extra time.|ss",
+"No matter how busy I am, I can always find time for others. | When I am very busy, I have no problem ignoring others problems until I have time.|ss",
+"I can get by on very little, because my needs are minimal. | I have specific expectations and needs, my needs are appropriate.|ss",
+"I am only happy when those around me are happy. | I can be happy even when those around me are not.|ss",
+"I am so busy doing for the people that I care about that I have little time for myself. | I always make time for myself before also taking time to do things for the people that I care about.|ss",
+"I have always been the one who listens to everyone elses problems. | I have not usually been the one who listens to everyone elses problems.|ss",
+"I am happier to give a present than to receive one. | I am happier to receive a present than to give one.|ss",
+"Other people see me as doing too much for others and not enough for myself. | Other people see me as doing too much for myself and not enough for others.|ss",
+"No matter how much I give, I feel it is never enough. | I feel I give enough to others.|ss",
+"If I do what I want, I feel very uncomfortable. | If I do what I want, I usually feel comfortable with my choices.|ss",
+"It is very difficult for me to ask others to take care of my needs. | It is not difficult for me to ask others to take care of my needs.|ss",
+"I worry about losing control of my actions. | I do not worry about losing control of my actions.|ei",
+"I worry that I might seriously physically or emotionally hurt someone if my anger gets out of control. | I have self-control; I do not worry that I might hurt someone in any way even if I get very angry.|ei",
+"I must control how I feel and be careful in how I act, or something bad is likely to happen. | I do not need to concentrate on controlling how I feel or act, I will not do something impetuous or bad.|ei",
+"A lot of anger and resentment builds up inside of me that I do not express. | I do not tend to experience anger or resentment building up inside of me.|ei",
+"I am too self-conscious to show positive feelings to others (eg, being nice first, showing I care). | I have no problem showing positive feelings to others (eg, being nice first, showing I care).|ei",
+"I find it embarrassing to express my feelings to others. | I find it enjoyable to express my feelings to others.|ei",
+"I find it hard to be warm or to start fun conversations without thinking about it first. | I find it easy to be warm or to start fun conversations without thinking about it first.|ei",
+"I control myself so much that people think I am unemotional. | I do have to try  to control myself so much that people think I am unemotional.|ei",
+"People see me as uptight and think that I do not show my feelings. | People do not see me as uptight and know I am happy to show my feelings.|ei",
+"I must be the best at most of what I do; I cannot accept second best. | I am happy to do a reasonable job; I do not need to be best all the time.|us",
+"I strive to keep almost everything in perfect order. | I am not a perfectionist|us",
+"I must look my best most of the time. | I don't worry overmuch about my appearance.|us",
+"I try to do my best; I cannot settle for good enough. | Good enough is sufficient|us",
+"I have so much to accomplish that there is almost no time to really relax. | There is time for both relaxation and to accomplish my goals.|us",
+"Almost nothing I do is quite good enough; I can always do better. | What I am doing is good enough; I can get better but I'm not obsessed with it.|us",
+"I must meet all my responsibilities. | If I miss a few of my responsibilities, that is ok.|us",
+"I feel there is constant pressure for me to achieve and get things done. | I do not feel pressure for me to achieve and get things done.|us",
+"My relationships suffer because I push myself so hard. | I have a good balance between my relationships and my work.|us",
+"My health is suffering because I put myself under so much pressure to do well. | I take care of my health first, even if this impact my ability to do other things.|us",
+"I often sacrifice pleasure and happiness to meet my own standards. | My pleasure and happiness is important, even if standards slip a bit sometimes.|us",
+"When I make a mistake, I deserve strong criticism. | When I make a mistake, I can learn from it and criticism is not useful.|us",
+"I cannot let myself off the hook easily or make excuses for my mistakes. | I do not feel on the hook for my mistakes, there are often valid reasons for the failure.|us",
+"I am a very competitive person. | I am not a very competitive person.|us",
+"I put a good deal of emphasis on money or status. | I do not tend to put much emphasis on money or status.|us",
+"I have to be Number One, in terms of my performance. | I do not have to be Number One, in terms of my performance.|us",
+"I have trouble accepting no for an answer when I want something from other people. | I can accept no for an answer when I want something from other people.|et",
+"I often get angry or irritable if I cannot get what I want. | I tend not to get angry or irritable if I cannot get what I want.|et",
+"I am special and should not have to accept many of the rules placed on other people. | I am similar to everyone else and should therefore accept the rules placed on other people.|et",
+"I hate to be constrained or kept from doing what I want. | It is reasonable for me to be constrained or kept from doing what I want when appropriate.|et",
+"I feel that I should not have to follow the normal conventions and rules that other people do. | I should follow the normal conventions and rules that other people do.|et",
+"What I have to offer is usually of greater value than the contributions of others. | What I have to offer is of no greater value than the contributions of others.|et",
+"I usually put my needs ahead of the needs of others. | I try not to put my needs ahead of the needs of others.|et",
+"I find that I am so involved in my own plans and actions that I often do not have time to give to friends or family. | I am not so involved in my own plans and actions that I cannot find time to give to friends or family.|et",
+"People tell me I am very controlling about how things are done. | People do not find me to be very controlling about how things are done.|et",
+"I get irritated when people will not do what I ask of them. | I can accept it when people will not do what I ask of them.|et",
+"I cannot tolerate other people telling me what to do. | I do not mind other people telling me what to do.|et",
+"I have difficulty getting myself to stop drinking, overeating, or other problem behaviors. | I have control over my drinking, eating, and other potentially problem behaviors.|is",
+"I cannot discipline myself to complete routine or boring tasks. | I can discipline myself to complete routine or boring tasks.|is",
+"I tend to carry through on impulses and express emotions that get me into trouble or hurt other people. | I do not carry through on impulses or express emotions that get me into trouble or hurt other people.|is",
+"If I cannot reach a goal, I become easily frustrated and give up. | If I cannot reach a goal, I can persist and keep working toward it.|is",
+"I find it hard to put off what I want right now in order to get what I want in the future. | I find it easy to put off what I want right now in order to get what I want in the future.|is",
+"Once I start to feel angry, I usually just cannot control it. | Once I start to feel angry, I can usually control it.|is",
+"I tend to overdo things, even though I know they are bad for me. | I do not overdo things, I know when things are bad for me and I stop.|is",
+"I get bored very easily. | I do not get bored very easily.|is",
+"When tasks become difficult, I usually stop and cannot complete them. | When tasks become difficult, I press on until I complete them.|is",
+"I cannot concentrate on anything for too long. | I can concentrate for a fair period on any task.|is",
+"I cannot force myself to do things I do not enjoy, even when I know it is for my own good. | I can force myself to do things I do not enjoy, when I know it is for my own good.|is",
+"I lose my temper at the slightest offense. | I have control of my temper, slight offenses do not bother me.|is",
+"I have rarely been able to stick to my resolutions. | I have usually been able to stick to my resolutions.|is",
+"I usually cannot hold back from showing people how I feel, no matter what the cost may be. | I usually can hold back from showing people how I feel when appropriate to do so.|is",
+"I often do things without thinking that I later regret. | I seldom do things without thinking that I later regret.|is",
+"It is important to me to be liked by almost everyone I know. | It is not that important to me to be liked by almost everyone I know.|as",
+"I change myself depending on the people I am with, so they will like me more. | I do not change myself depending on the people I am with, people should like me as I am.|as",
+"I try hard to fit in. | I do not try to fit in, I am who I am.|as",
+"My feelings about myself are based mostly on how other people view me. | My feelings about myself are not based on how other people view me.|as",
+"Having money and knowing important people make me feel worthwhile. | Having money and knowing important people is not a big part of making me feel worthwhile.|as",
+"I spend a lot of time on my physical appearance so people value me. | I do not spend a lot of time on my physical appearance to try to get people value me more.|as",
+"My successes are most valuable to me when other people notice them. | My successes are valuable to me whether or not other people notice them.|as",
+"I am so focused on fitting in that sometimes I do not know who I am. | I am never so focused on fitting in that  I do not know who I am.|as",
+"When setting my own goals, I usually thinking about how others will view them. | When setting my own goals, I seldom think about how others will view them.|as",
+"When I look back at my life decisions, I see that getting other peoples approval was an important part of the decision. | When I look back at my life decisions, I see that getting other peoples approval was not part of the decision.|as",
+"Even if I do not like someone, I still want him or her to like me. | If I do not like someone, I do not care if they like me or not.|as",
+"Unless I get a lot of attention from others, I feel less important. | I do not feel less important if I get less attention from others.|as",
+"When I am introduced, or make remarks at a meeting, I enjoy the respect and admiration that follows. | When I am introduced, or make remarks at a meeting, the respect and admiration that follows is unimportant to me.|as",
+"Lots of praise and compliments make me feel like a worthwhile person. | Lots of praise and compliments have little impact on how I feel about myself.|as",
+"Even when things seem to be going well, I feel that it is only temporary. | When things seem to be going well, I feel that it is part of building something lasting.|np",
+"If something good happens, I worry that something bad is likely to follow. | If something good happens, I do not worry that something bad is likely to follow.|np",
+"You cannot be too careful; something will almost always go wrong. | In any project something will almost always go wrong, you can fix it so don't worry.|np",
+"No matter how hard I work, I worry that I could lose all my money. | The money I have worked for is secure and I will not lose it.|np",
+"I worry that a wrong decision could lead to disaster. | I will make some wrong decisions but they are not a disaster and can be changed.|np",
+"I can obsess over minor decisions, because making a mistake seems so serious. | I do not obsess over minor decisions, any mistake can be easily fixed.|np",
+"It is better assuming that things will not work out for me, that way I do not feel disappointed if things go wrong. | It is better assuming that things will work out for me, if things go wrong I can fix them and it will work in the end.|np",
+"I focus more on the negative aspects of life and of events than on the positive. | I focus more on the positive aspects of life and of events than on the negative.|np",
+"I tend to be pessimistic. | I tend to be optimistic.|np",
+"People close to me consider me a worrier. | People close to me do not consider me a worrier.|np",
+"If people get too enthusiastic about something, I become uncomfortable and feel like warning them of what could go wrong. | If people get enthusiastic about something, I enjoy it and join in on their enthusiasm.|np",
+"If I make a mistake, I deserve to be punished. | If I make a mistake, I deserve to be given a second chance.|pu",
+"If I do not try my hardest, I should expect to lose out. | If I do not try my hardest, I should expect to still do ok.|pu",
+"There is no excuse if I make a mistake. | Everyone makes a mistakes.  If I make one that’s ok.|pu",
+"People who do not pull their own weight should get punished in some way. | People who do not pull their own weight should be understood and supported to do better.|pu",
+"Usually I do not accept the excuses other people make. They are just not willing to accept responsibility and suffer what happens next. | I usually accept the excuses other people make, their reasons are often good and people mostly want to do their best.|pu",
+"If I do not do the job, I should suffer whatever happens next. | If I do not do the job, I should be supported to do the job better, not punished.|pu",
+"I often think about my mistakes and feel angry with myself. | I do not usually think about my mistakes, if I do it is with curiosity and to learn.|pu",
+"When people do something bad, I have trouble applying the phrase, Forgive and forget. | When people do something bad, I am happy to say, Forgive and forget.|pu",
+"I hold grudges, even after someone has apologized. | When someone has apologized, I do not hold a grudge.|pu",
+"I get upset when I think someone has been let off the hook too easily. | If I think someone has been let off the hook too easily, I don't worry about it.|pu",
+"I get angry when people make excuses for themselves, or blame other people for their problems. | When people make excuses for themselves or blame other people for their problems I am sympathetic.|pu",
+"It does not matter why I make a mistake; when I do something wrong, I should pay the price. | When I make a mistake it matters why; when I do something wrong responsibility should be shared.|pu",
+"I beat-up on myself a lot for things I screw up. | I do not beat-up on myself for things I screw up.|pu",
+"I am a bad person who deserves to be punished | I am a not bad person and do not deserve to be punished.|pu"
         ];
-        const categoryData = [
+        const CATEGORY_DATA = [
             {group: "DAR", category: "ds", descriptor: "I tend to hide the real me", total: 15},
             {group: "DAR", category: "ed", descriptor: "I want to be wanted", total: 9},
             {group: "DAR", category: "ei", descriptor: "My feelings are dangerous", total: 9},
@@ -631,6 +700,67 @@ display: none; z-index: 1000;">Reverse Sentiment</button>
             {group: "IL", category: "et", descriptor: "I know best so just do it", total: 11},
             {group: "IL", category: "is", descriptor: "What I want right now takes over", total: 15}
         ];
+        const STRENGTHEN_INSTRUCTION = document.getElementById('strengthen-instruction');
+        const SELECTED_DROP_DELAY = 500; // Delay in ms before animating selected cards to containers after 4th selection
+const SELECTED_DROP_Y = '20px'; // Amount to drop selected cards
+const SELECTED_SCALE = 0.9; // Shrink factor for selected cards
+const SELECTED_FONT_SCALE = 0.9; // Font size scale factor (original front font-size is 16px)
+const BORDER_WIDTH = '3px'; // Border width for selected cards
+const DARK_GREEN_BORDER = '#7b9c7b'; // Darker green border color
+const DARK_RED_BORDER = '#cc6666'; // Darker red border color
+        const TOTAL_QUESTIONS = 232; // Total number of questions in the game
+        const CARDS_PER_SET = 5; // Number of cards drawn per set
+        const UPDATE_TIMER_DURATION = 120; // Duration for update phase timer in seconds
+        const TIMER_EXTENSION = 60; // Seconds added when clicking the timer
+        const TIMER_DEFAULT_TOTAL = 10; // Default total time for drawTimer function (overridden by UPDATE_TIMER_DURATION)
+        const ENCODED_DIGITS = 63; // Number of digits in the base58 encoded string (excluding checksum)
+        const FINAL_LENGTH = 64; // Final encoded string length including checksum
+        const WORD_LENGTH = 8; // Length of each word in the formatted result
+        const BASE = BigInt(58); // Base for encoding
+        const BASE58_DIGITS = '23456789ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'; // Digits for base58 encoding (excludes 0,1,l,O)
+        const GROUP_COLORS = { // Colors for groups in results (unused in current code but defined)
+            DAR: '#0000FF',
+            ERS: '#FF00FF',
+            IAP: '#800080',
+            IL: '#FF0000'
+        };
+        const TIMER_COLOR_RED = '#e30b28'; // Timer stroke color for red phase
+        const TIMER_COLOR_GREEN = '#01b342'; // Timer stroke color for green phase
+        const TIMER_COLOR_GREY = '#a3a0a0'; // Timer stroke color for grey phase
+        const INITIAL_PROMPT = `You are about to go through an interactive experience that will ask you some questions you may find very sensitive.\n
+This session is totally anonymous,
+your name is not recorded and no-one can see what you enter.\n
+At the end of the session you will get a results summary.
+This should give you insight into some of your deeper motivations and potential blockers to your learning.\n
+This can be very useful for your coach. It is up to you to forward your results at the end. If you take no action, all data is deleted\n
+To forward your results, just copy and paste your results summary at the end into an email and send it.\n
+The full session will take 20 to 30 minutes
+When you are ready to progress click continue\n\n\n\n\n\n\n\n`; // Initial prompt shown on load
+        const GAME_INTRO_INSTRUCTION = 
+`You will soon be offered 47 card hands, 
+Each hand has 5 cards,
+Each card has a statement.\n
+Choose the card that you identify with most.\n
+Try clicking 'Reverse Sentiment' to see the opposite statements.
+Play with Reversing Sentiment and choosing cards until 4 cards are chosen.  You can Undo your last pick at any time.\n
+If a statement really resonates with you, 
+click on an already selected card again to strengthen it.
+The 5th card in any set goes "grey" automatically (unsure)\n
+When you are ready to start click continue\n\n\n\n\n\n`; // Introduction to game mechanics
+        const BEGIN_GAME_INSTRUCTION = "Click continue to begin the game"; // Prompt after intro
+        const CLICK_ANY_CARD = " Click any card to begin\n\n\n\n"; // Prompt to start selecting
+        const CHOOSE_MOST_LIKE_YOU = " choose the card MOST like you\n (if none then reverse sentiment)\n\n\n\n"; // Prompt during selection
+        const ALL_SETS_COMPLETED_INSTRUCTION = "All sets completed! Click Continue to proceed to the next phase."; // End of selection phase
+        const UPDATE_RED_INSTRUCTION = "You have completed the first phase of the game.\nYou likely had to choose some cards (both red and green) that you felt more strongly than others.The grey cards were what was left, probably most of these are in-between.\n\nThe next section lets you change some of those cards.\n\nWhen you click below, a 2 minute timer will appear.\n\nYou can now hover your mouse over any red card, you will see the statement you chose. You can click to strengthen that card (darker red) or to weaken it (grey).\n\nYou can click as many bricks as you like during the 2 minute period.\nPlease click on Continue when you are ready."; // Instruction for red update phase
+        const UPDATE_GREEN_INSTRUCTION = "Thank you for updating your red bricks.\nNow please update your green bricks in the same way.\n\nEach green brick represents a card you have chosen that resonates with you. If you want to change your choice, click to change to red -- or grey if not sure.\n\nPlease click on Continue when you are ready."; // Instruction for green update phase
+        const UPDATE_GREY_INSTRUCTION = "Now you will have 2 minutes to update your grey bricks. These represent the cards that you neither rejected or selected.\n\nClick on any grey brick to change it to green, and again to change it to red.\n\nPlease click on Continue when you are ready."; // Instruction for grey update phase
+        const TIMER_LABEL_TEXT = "Click to add 60s"; // Label for timer extension
+        const RESULTS_HTML = '<h2>Results</h2><pre></pre>'; // Initial HTML for results container
+        const COPY_SUCCESS_MESSAGE = 'Results copied to clipboard!'; // Alert on successful copy
+        const COPY_FAIL_MESSAGE = 'Failed to copy results.'; // Alert on failed copy
+
+        const questionsData = QUESTIONS_DATA;
+        const categoryData = CATEGORY_DATA;
         const questionsByCategory = {};
         questionsData.forEach(line => {
             const [question, opposite, category] = line.split('|');
@@ -649,6 +779,7 @@ display: none; z-index: 1000;">Reverse Sentiment</button>
             greenSelections[category] = 0;
             redSelections[category] = 0;
         });
+
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -656,7 +787,8 @@ display: none; z-index: 1000;">Reverse Sentiment</button>
             }
             return array;
         }
-const totalSets = Math.floor(232 / 5);
+
+const totalSets = Math.floor(TOTAL_QUESTIONS / CARDS_PER_SET);
 let currentSetIndex = 0;
 let selectedCards = [];
 let removeFromTop = true;
@@ -669,6 +801,8 @@ let cards = [];
 const instruction = document.getElementById('instruction');
 const progressContainer = document.getElementById('progress-container');
 const timerCanvas = document.getElementById('timer-canvas');
+const timerLabel = document.getElementById('timer-label');
+timerLabel.innerText = TIMER_LABEL_TEXT;
 const continueButton = document.getElementById('continue-button');
 const reverseButton = document.getElementById('reverse-button');
         const ctx = timerCanvas.getContext('2d');
@@ -678,8 +812,7 @@ for (const category in questionsByCategory) {
 }
 shuffle(allQuestions);
 // Delay creation of blue bricks until second "Continue" click
-
-function drawTimer(seconds, totalTime = 10) {
+function drawTimer(seconds, totalTime = TIMER_DEFAULT_TOTAL) {
     ctx.clearRect(0, 0, timerCanvas.width, timerCanvas.height);
     const centerX = timerCanvas.width / 2;
     const centerY = timerCanvas.height / 2;
@@ -691,7 +824,7 @@ function drawTimer(seconds, totalTime = 10) {
     ctx.beginPath();
     const progress = seconds / totalTime;
     ctx.arc(centerX, centerY, radius, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * (1 - progress), false);
-    ctx.strokeStyle = updatePhase === 'red' ? '#ec5f02' : updatePhase === 'green' ? '#b301b3' : '#D3D3D3'; /* Red, Green, Grey */
+    ctx.strokeStyle = updatePhase === 'red' ? TIMER_COLOR_RED : updatePhase === 'green' ? TIMER_COLOR_GREEN : TIMER_COLOR_GREY; /* Red, Green, Grey */
     ctx.lineWidth = 10;
     ctx.stroke();
     ctx.font = '16px Arial';
@@ -705,14 +838,14 @@ function getNextSet() {
     for (const category in remainingQuestionsByCategory) {
         availableQuestions.push(...remainingQuestionsByCategory[category].map(q => ({ text: q.question, opposite: q.opposite, category })));
     }
-    if (availableQuestions.length < 5 && availableQuestions.length > 0) {
+    if (availableQuestions.length < CARDS_PER_SET && availableQuestions.length > 0) {
         return availableQuestions.splice(0, availableQuestions.length);
     }
     if (availableQuestions.length === 0) return null;
     shuffle(availableQuestions);
     const set = [];
     const availableCategories = Object.keys(remainingQuestionsByCategory).filter(c => remainingQuestionsByCategory[c].length > 0);
-    if (availableCategories.length >= 5) {
+    if (availableCategories.length >= CARDS_PER_SET) {
         const affinity = {};
         for (const category in remainingQuestionsByCategory) {
             const green = greenSelections[category] || 0;
@@ -754,19 +887,21 @@ function getNextSet() {
             return set;
         }
     }
-    for (let i = 0; i < 5 && availableQuestions.length > 0; i++) {
+    for (let i = 0; i < CARDS_PER_SET && availableQuestions.length > 0; i++) {
         const question = availableQuestions.shift();
         set.push(question);
         remainingQuestionsByCategory[question.category] = remainingQuestionsByCategory[question.category].filter(q => q.question !== question.text);
     }
     return set;
 }
-
-function animateCardToContainer(card, containerId, iconClass, text, opposite, category, callback) {
+function animateCardToContainer(card, containerId, iconClass, text, opposite, category, callback, isDarkened = false) {
     console.log(`animateCardToContainer: Adding ${iconClass} to ${containerId}, text=${text}, category=${category}`);
     const initialRect = card.getBoundingClientRect();
     const frontClone = card.querySelector('.front').cloneNode(true);
     frontClone.className = 'temp-icon';
+    if (isDarkened) {
+        frontClone.style.backgroundColor = card.querySelector('.front').style.backgroundColor;
+    }
     frontClone.style.left = initialRect.left + 'px';
     frontClone.style.top = initialRect.top + 'px';
     frontClone.style.width = initialRect.width + 'px';
@@ -775,6 +910,9 @@ function animateCardToContainer(card, containerId, iconClass, text, opposite, ca
     document.body.appendChild(frontClone);
     const actualIcon = document.createElement('div');
     actualIcon.className = iconClass;
+    if (isDarkened && iconClass !== 'neither-icon') {
+        actualIcon.classList.add('darkened');
+    }
     actualIcon.dataset.tooltip = iconClass === 'rejected-icon' ? opposite : text;
     actualIcon.dataset.opposite = opposite;
     actualIcon.dataset.category = category;
@@ -788,7 +926,11 @@ function animateCardToContainer(card, containerId, iconClass, text, opposite, ca
     tooltip.textContent = actualIcon.dataset.tooltip;
     actualIcon.appendChild(tooltip);
     actualIcon.addEventListener('click', () => {
-        actualIcon.classList.toggle('marked');
+        if (iconClass === 'neither-icon') {
+            actualIcon.classList.toggle('marked');
+        } else {
+            actualIcon.classList.toggle('darkened');
+        }
     }, { once: false });
     requestAnimationFrame(() => {
         const targetRect = actualIcon.getBoundingClientRect();
@@ -834,8 +976,7 @@ function startUpdatePhase() {
     document.getElementById('auto-progress').style.display = 'none';
     document.getElementById('results-container').style.display = 'none';
     updatePhase = 'red';
-    instruction.innerText = 
-    "You have completed the first phase of the game.\nYou likely had to choose some cards (both red and green) that you felt more strongly than others.The grey cards were what was left, probably most of these are in-between.\n\nThe next section lets you change some of those cards.\n\nWhen you click below, a 2 minute timer will appear.\n\nYou can now hover your mouse over any red card, you will see the statement you chose. You can click to strengthen that card (darker red) or to weaken it (grey).\n\nYou can click as many bricks as you like during the 2 minute period.\nPlease click on Continue when you are ready.";
+    instruction.innerText = UPDATE_RED_INSTRUCTION;
     instruction.style.display = 'block';
     console.log('Setting continueButton.style.display to block, continueButton:', continueButton, 'current style:', continueButton ? continueButton.style.display : 'null');
     continueButton.style.display = 'block';
@@ -849,7 +990,7 @@ function startUpdatePhase() {
         continueButton.focus();
         continueButton.addEventListener('click', () => {
             console.log('Continue button clicked, starting update phase, progressContainer.children.length:', progressContainer.children.length);
-            startUpdatePhase();
+            // startUpdatePhase(); // Removed recursive call
             continueButton.style.display = 'none';
         }, { once: true });
         console.log('Event listener attached to continueButton, continueButton:', continueButton);
@@ -860,7 +1001,6 @@ function startUpdatePhase() {
         continueButton.offsetHeight;
     }, 300);
 }
-
 function updateBricks(containerId, currentStatus) {
     console.log(`updateBricks called for ${containerId} with status ${currentStatus}`);
     const container = document.getElementById(containerId);
@@ -887,27 +1027,72 @@ function updateBricks(containerId, currentStatus) {
             const category = brick.dataset.category;
             const currentBrickStatus = brick.classList.contains('rejected-icon') ? 'red' :
                                       brick.classList.contains('selected-icon') ? 'green' : 'grey';
-            console.log(`Brick ${index} clicked: text=${text}, currentBrickStatus=${currentBrickStatus}, category=${category}`);
+            const isDarkened = brick.classList.contains('darkened');
+            console.log(`Brick ${index} clicked: text=${text}, currentBrickStatus=${currentBrickStatus}, category=${category}, isDarkened:${isDarkened}`);
             const selection = allSelections.find(sel => sel.text === text && sel.status === currentBrickStatus);
             if (selection) {
-                let newStatus;
-                let newClass;
-                if (currentBrickStatus === 'red') {
-                    newStatus = 'grey';
-                    newClass = 'neither-icon';
-                    redSelections[category] = (redSelections[category] || 0) - 1;
-                    brick.dataset.tooltip = text;
-                } else if (currentBrickStatus === 'grey') {
-                    newStatus = 'green';
-                    newClass = 'selected-icon';
-                    greenSelections[category] = (greenSelections[category] || 0) + 1;
-                    brick.dataset.tooltip = text;
-                } else if (currentBrickStatus === 'green') {
-                    newStatus = 'red';
-                    newClass = 'rejected-icon';
-                    greenSelections[category] = (greenSelections[category] || 0) - 1;
-                    redSelections[category] = (redSelections[category] || 0) + 1;
-                    brick.dataset.tooltip = opposite;
+                let newStatus = currentBrickStatus;
+                let newClass = brick.className;
+                let nextTooltip = brick.dataset.tooltip;
+                if (containerId === 'rejected-container') {
+                    if (currentBrickStatus === 'red') {
+                        if (isDarkened) {
+                            newStatus = 'grey';
+                            newClass = 'neither-icon';
+                            redSelections[category] = (redSelections[category] || 0) - 1;
+                            nextTooltip = text;
+                            brick.classList.remove('darkened');
+                        } else {
+                            newStatus = 'red';
+                            newClass = 'rejected-icon darkened';
+                            redSelections[category] = (redSelections[category] || 0) + 1;
+                            nextTooltip = opposite;
+                        }
+                    } else if (currentBrickStatus === 'grey') {
+                        newStatus = 'red';
+                        newClass = 'rejected-icon';
+                        redSelections[category] = (redSelections[category] || 0) + 1;
+                        nextTooltip = opposite;
+                    }
+                } else if (containerId === 'selected-container') {
+                    if (currentBrickStatus === 'green') {
+                        if (isDarkened) {
+                            newStatus = 'grey';
+                            newClass = 'neither-icon';
+                            greenSelections[category] = (greenSelections[category] || 0) - 1;
+                            nextTooltip = text;
+                            brick.classList.remove('darkened');
+                        } else {
+                            newStatus = 'green';
+                            newClass = 'selected-icon darkened';
+                            greenSelections[category] = (greenSelections[category] || 0) + 1;
+                            nextTooltip = text;
+                        }
+                    } else if (currentBrickStatus === 'grey') {
+                        newStatus = 'green';
+                        newClass = 'selected-icon';
+                        greenSelections[category] = (greenSelections[category] || 0) + 1;
+                        nextTooltip = text;
+                    }
+                } else if (containerId === 'neither-container') {
+                    // Unchanged for grey
+                    if (currentBrickStatus === 'grey') {
+                        newStatus = 'green';
+                        newClass = 'selected-icon';
+                        greenSelections[category] = (greenSelections[category] || 0) + 1;
+                        nextTooltip = text;
+                    } else if (currentBrickStatus === 'green') {
+                        newStatus = 'red';
+                        newClass = 'rejected-icon';
+                        greenSelections[category] = (greenSelections[category] || 0) - 1;
+                        redSelections[category] = (redSelections[category] || 0) + 1;
+                        nextTooltip = opposite;
+                    } else if (currentBrickStatus === 'red') {
+                        newStatus = 'grey';
+                        newClass = 'neither-icon';
+                        redSelections[category] = (redSelections[category] || 0) - 1;
+                        nextTooltip = text;
+                    }
                 }
                 console.log(`Updating selection: ${text} from ${selection.status} to ${newStatus}`);
                 selection.status = newStatus;
@@ -918,7 +1103,7 @@ function updateBricks(containerId, currentStatus) {
                 if (oldTooltip) brick.removeChild(oldTooltip);
                 const newTooltip = document.createElement('div');
                 newTooltip.className = 'tooltip';
-                newTooltip.textContent = brick.dataset.tooltip;
+                newTooltip.textContent = nextTooltip;
                 brick.appendChild(newTooltip);
                 console.log(`Brick ${index} updated in place to ${newClass}, text=${text}`);
                 console.log('allSelections after update:', JSON.stringify(allSelections));
@@ -944,10 +1129,10 @@ function updateBricks(containerId, currentStatus) {
             let nextInstruction;
             if (currentPhase === 'red') {
                 nextPhase = 'green';
-                nextInstruction = "Thank you for updating your red bricks.\nNow please update your green bricks in the same way.\n\nEach green brick represents a card you have chosen that resonates with you. If you want to change your choice, click to change to red -- or grey if not sure.\n\nPlease click on Continue when you are ready.";
+                nextInstruction = UPDATE_GREEN_INSTRUCTION;
             } else if (currentPhase === 'green') {
                 nextPhase = 'grey';
-                nextInstruction = "Now you will have 2 minutes to update your grey bricks.  These represent the cards that you neither rejected or selected.\n\nClick on any grey brick to change it to green, and again to change it to red.\n\nPlease click on Continue when you are ready.";
+                nextInstruction = UPDATE_GREY_INSTRUCTION;
             } else {
                 document.getElementById('game-container').style.display = 'none';
                 displayResults();
@@ -964,8 +1149,8 @@ function updateBricks(containerId, currentStatus) {
             updateBricks(nextContainer, nextPhase);
         }
 function timerClickHandler(timeLeft, timeLimit, drawTimer) {
-    timeLeft.value += 60;
-    timeLimit.value += 60;
+    timeLeft.value += TIMER_EXTENSION;
+    timeLimit.value += TIMER_EXTENSION;
     drawTimer(timeLeft.value, timeLimit.value);
 }
 continueButton.addEventListener('click', () => {
@@ -977,7 +1162,7 @@ continueButton.addEventListener('click', () => {
     timerCanvas.style.display = 'block';
     document.getElementById('timer-label').style.display = 'block';
     document.getElementById('instruction').style.display = 'block';
-    let timeLimit = { value: 120 };
+    let timeLimit = { value: UPDATE_TIMER_DURATION };
     let timeLeft = { value: timeLimit.value };
     drawTimer(timeLeft.value, timeLimit.value);
     timerInterval = setInterval(() => {
@@ -1009,12 +1194,11 @@ continueButton.addEventListener('click', () => {
         updateBricks('neither-container', 'grey');
     }
 });
-
     function bigIntToBase(n, base, digits) {
-    if (n === 0n) return digits[0].repeat(63);
+    if (n === 0n) return digits[0].repeat(ENCODED_DIGITS);
     let result = [];
     let temp = n;
-    for (let i = 0; i < 63; i++) {
+    for (let i = 0; i < ENCODED_DIGITS; i++) {
         const digit = Number(temp % base);
         console.log(`Digit ${i}: ${digit}, Char: ${digits[digit]}`);
         result.push(digits[digit]);
@@ -1022,20 +1206,14 @@ continueButton.addEventListener('click', () => {
     }
     return result.reverse().join('');
 }
-
 function displayResults() {
     const resultsContainer = document.getElementById('results-container');
     resultsContainer.style.display = 'flex';
-    resultsContainer.innerHTML = '<h2>Results</h2><pre></pre>';
+    resultsContainer.innerHTML = RESULTS_HTML;
     const copyButton = document.getElementById('copy-button');
     copyButton.style.display = 'block';
-    const groupColors = {
-        DAR: '#0000FF',
-        ERS: '#FF00FF',
-        IAP: '#800080',
-        IL: '#FF0000'
-    };
-    const base58Digits = '23456789ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    const groupColors = GROUP_COLORS;
+    const base58Digits = BASE58_DIGITS;
     const maxDescriptorLength = Math.max(...categoryData.map(({descriptor}) => descriptor.length));
     const sortedByGroup = categoryData.reduce((acc, {group, category, descriptor, total}) => {
         const greenCount = allSelections.filter(sel => sel.category === category && sel.status === 'green').length;
@@ -1066,8 +1244,8 @@ function displayResults() {
         number = number * BigInt(3) + BigInt(scores[i] - 1);
     }
     console.log('Input number to bigIntToBase:', number);
-    const encoded = bigIntToBase(number, BigInt(58), base58Digits);
-    if (encoded.length !== 63) {
+    const encoded = bigIntToBase(number, BASE, base58Digits);
+    if (encoded.length !== ENCODED_DIGITS) {
         console.error('Encoded string length invalid:', encoded.length);
         resultsContainer.querySelector('pre').innerHTML = 'Error: Invalid encoded string length';
         return;
@@ -1083,20 +1261,20 @@ function displayResults() {
     for (let char of encoded) {
         sum += BigInt(base58Digits.indexOf(char));
     }
-    const checksum = Number(sum % BigInt(58));
+    const checksum = Number(sum % BASE);
     console.log('Encoded checksum:', checksum, 'Checksum character:', base58Digits[checksum]);
     const resultString = encoded + base58Digits[checksum];
     console.log('Encoded resultString:', resultString);
-    if (resultString.length !== 64) {
+    if (resultString.length !== FINAL_LENGTH) {
         console.error('Final result string length invalid:', resultString.length);
         resultsContainer.querySelector('pre').innerHTML = 'Error: Invalid final result string length';
         return;
     }
     const words = [];
-    for (let i = 0; i < 64; i += 8) {
-        words.push(resultString.slice(i, i + 8));
+    for (let i = 0; i < FINAL_LENGTH; i += WORD_LENGTH) {
+        words.push(resultString.slice(i, i + WORD_LENGTH));
     }
-    if (words.length !== 8 || words.some(s => s.length !== 8)) {
+    if (words.length !== WORD_LENGTH || words.some(s => s.length !== WORD_LENGTH)) {
         console.error('Formatting failed:', { words });
         resultsContainer.querySelector('pre').innerHTML = 'Error: Formatting failed';
         return;
@@ -1106,21 +1284,20 @@ function displayResults() {
     resultsContainer.querySelector('pre').innerHTML = outputText;
     copyButton.onclick = () => {
         navigator.clipboard.writeText(outputText).then(() => {
-            alert('Results copied to clipboard!');
+            alert(COPY_SUCCESS_MESSAGE);
         }).catch(err => {
             console.error('Failed to copy results:', err);
-            alert('Failed to copy results.');
+            alert(COPY_FAIL_MESSAGE);
         });
     };
 }
-
 function displaySet() {
     console.log('displaySet called, allSelections.length:', allSelections.length, 'remainingQuestionsByCategory:', remainingQuestionsByCategory, 'progressContainer.children.length:', progressContainer.children.length);
     // Line before the end-of-phase check
     console.log('Before end check, allSelections.length:', allSelections.length, 'remainingQuestionsByCategory:', remainingQuestionsByCategory, 'progressContainer.children.length:', progressContainer.children.length);
     // Check if all 232 questions are selected, no more sets are available, or all progress icons are used
-    if (allSelections.length >= 232 || (remainingQuestionsByCategory && Object.values(remainingQuestionsByCategory).every(cat => cat.length === 0)) || progressContainer.children.length === 0) {
-        console.log('After end check, condition met:', allSelections.length >= 232 || (remainingQuestionsByCategory && Object.values(remainingQuestionsByCategory).every(cat => cat.length === 0)) || progressContainer.children.length === 0, 'allSelections.length:', allSelections.length, 'remainingQuestionsByCategory empty:', Object.values(remainingQuestionsByCategory).every(cat => cat.length === 0), 'progressContainer.children.length:', progressContainer.children.length);
+    if (allSelections.length >= TOTAL_QUESTIONS || (remainingQuestionsByCategory && Object.values(remainingQuestionsByCategory).every(cat => cat.length === 0)) || progressContainer.children.length === 0) {
+        console.log('After end check, condition met:', allSelections.length >= TOTAL_QUESTIONS || (remainingQuestionsByCategory && Object.values(remainingQuestionsByCategory).every(cat => cat.length === 0)) || progressContainer.children.length === 0, 'allSelections.length:', allSelections.length, 'remainingQuestionsByCategory empty:', Object.values(remainingQuestionsByCategory).every(cat => cat.length === 0), 'progressContainer.children.length:', progressContainer.children.length);
         console.log('End of card phase detected, preparing to transition, allSelections.length:', allSelections.length, 'progressContainer.children.length:', progressContainer.children.length);
         const availableQuestions = [];
         for (const category in remainingQuestionsByCategory) {
@@ -1137,7 +1314,7 @@ function displaySet() {
             });
             console.log('Updated allSelections.length:', allSelections.length, 'progressContainer.children.length:', progressContainer.children.length);
         }
-        instruction.innerText = "All sets completed! Click Continue to proceed to the next phase.";
+        instruction.innerText = ALL_SETS_COMPLETED_INSTRUCTION;
         cards.forEach(card => {
             card.style.display = 'none';
         });
@@ -1167,7 +1344,7 @@ function displaySet() {
     console.log('getNextSet returned set:', set, 'allSelections.length:', allSelections.length, 'progressContainer.children.length:', progressContainer.children.length);
     if (!set) {
         console.log('No more sets available, triggering end of card phase, allSelections.length:', allSelections.length, 'progressContainer.children.length:', progressContainer.children.length);
-        instruction.innerText = "All sets completed! Click Continue to proceed to the next phase.";
+        instruction.innerText = ALL_SETS_COMPLETED_INSTRUCTION;
         cards.forEach(card => {
             card.style.display = 'none';
         });
@@ -1193,22 +1370,26 @@ function displaySet() {
         continueButton.focus();
         return;
     }
-    if (removeFromTop) {
-        for (let i = 0; i < set.length && progressContainer.firstChild; i++) {
-            progressContainer.removeChild(progressContainer.firstChild);
-        }
-    } else {
-        for (let i = 0; i < set.length && progressContainer.lastChild; i++) {
-            progressContainer.removeChild(progressContainer.lastChild);
-        }
+if (removeFromTop) {
+    if (progressContainer.firstChild) {
+        progressContainer.removeChild(progressContainer.firstChild);
     }
+} else {
+    if (progressContainer.lastChild) {
+        progressContainer.removeChild(progressContainer.lastChild);
+    }
+}
     removeFromTop = !removeFromTop;
     const numIcons = progressContainer.children.length;
-    const numRows = Math.ceil(numIcons / 12);
-    progressContainer.style.gridTemplateRows = `repeat(${numRows}, 22px)`;
-    progressContainer.style.height = `calc((22px + 2px) * ${numRows} - 2px)`;
+const numRows = Math.ceil(numIcons / 10);
+progressContainer.style.gridTemplateRows = `repeat(${numRows}, 70px)`;
+progressContainer.style.height = `calc((70px + 16px) * ${numRows} - 16px)`;
     cards.forEach((card, index) => {
         if (index < set.length) {
+card.classList.remove('selected-card', 'green', 'red', 'grey', 'darkened');
+card.style.border = 'none';
+card.style.fontSize = '16px'; // Reset to original
+card.style.removeProperty('--dark-color');
             card.querySelector('.front').innerText = set[index].text;
             card.querySelector('.front').style.backgroundColor = '#abcfab'; /* Light green */
             card.dataset.category = set[index].category;
@@ -1228,7 +1409,7 @@ function displaySet() {
     selectionCount = 0;
     selectedCards = [];
     isAnimating = false;
-    instruction.innerText = " Click any card to begin\n\n\n\n";
+    instruction.innerText = CLICK_ANY_CARD;
     document.getElementById('card-container').classList.add('select-phase');
     document.getElementById('undo-button').style.display = 'none';
     document.getElementById('reverse-button').style.display = 'none';
@@ -1236,7 +1417,6 @@ function displaySet() {
     document.getElementById('auto-progress').style.display = 'block'; // Show auto-progress button
     continueButton.style.display = 'none';
 }
-
 function flipCards() {
     cards.forEach(card => {
         if (card.style.display !== 'none') {
@@ -1248,7 +1428,7 @@ function flipCards() {
     });
     isFlipped = true;
     selectionCount = 0;
-    instruction.innerText = "                                                     choose the card MOST like you\n                                                     (if none then reverse sentiment)\n\n\n\n";
+    instruction.innerText = CHOOSE_MOST_LIKE_YOU;
     document.getElementById('card-container').classList.remove('select-phase');
     document.getElementById('card-container').classList.add('reject-phase');
     document.getElementById('undo-button').style.display = 'block';
@@ -1256,35 +1436,22 @@ function flipCards() {
     document.getElementById('reverse-button').style.backgroundColor = '#abcfab'; /* Light green */
 }
         document.getElementById('continue-button').addEventListener('click', startGame, { once: true });
-
 function startGame() {
-    instruction.innerText =
-    `The first part of this session resembles a card game\n
-    To your left are many blue boxes, each box represents a card.
-    The system draws 5 cards from there, each card has a statement.\n
-    Red cards show statements which are generally issues for you.
-    Green cards show the opposite positive statement.
-    Use the button "reverse sentiment" to look at your options.\n
-    Click on a card when it is most correct for you.
-    The 5th card in any set goes "grey" automatically (unsure)\n
-    If a statement really fits you, once selected click again to mark
-    it with a black dot.  This indicates a strong resonance\n
-    When you are ready to start click continue\n\n\n\n\n\n`;
+    instruction.innerText = GAME_INTRO_INSTRUCTION;
     continueButton.style.display = 'block';
     continueButton.focus();
     continueButton.addEventListener('click', () => {
         continueButton.style.display = 'none';
-        instruction.innerText = "Click continue to begin the game";
+        instruction.innerText = BEGIN_GAME_INSTRUCTION;
         continueButton.style.display = 'block';
         continueButton.focus();
         continueButton.addEventListener('click', () => {
             continueButton.style.display = 'none'; // Ensure button hides after second click
             instruction.style.zIndex = -1; // Move instruction behind game elements
             // Create and display blue bricks
-            for (let i = 0; i < 232; i++) {
+            for (let i = 0; i < Math.ceil(TOTAL_QUESTIONS / CARDS_PER_SET); i++) {
                 const icon = document.createElement('div');
                 icon.className = 'progress-icon';
-                icon.title = allQuestions[i].text;
                 icon.dataset.category = allQuestions[i].category;
                 progressContainer.appendChild(icon);
                 const existingTooltip = icon.querySelector('.tooltip');
@@ -1297,7 +1464,7 @@ function startGame() {
             document.getElementById('neither-container').style.display = 'flex';
             // Dynamically create cards and attach event listeners
             const cardContainer = document.getElementById('card-container');
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < CARDS_PER_SET; i++) {
                 const cardWrapper = document.createElement('div');
                 cardWrapper.className = 'card-wrapper';
                 const card = document.createElement('div');
@@ -1313,73 +1480,100 @@ function startGame() {
                 cardContainer.appendChild(cardWrapper);
                 cards.push(card);
                 // Attach click event listener to each new card
-                card.addEventListener('click', () => {
-                    if (card.style.display === 'none' || isAnimating) return;
-                    if (!isFlipped) {
-                        flipCards();
-                    } else if (selectionCount < 4) {
-                        isAnimating = true;
-                        const isRejectPhase = document.getElementById('card-container').classList.contains('reject-phase');
-                        const status = isRejectPhase ? 'red' : 'green';
-                        const containerId = isRejectPhase ? 'rejected-container' : 'selected-container';
-                        const iconClass = isRejectPhase ? 'rejected-icon' : 'selected-icon';
-                        const text = card.dataset.text;
-                        const opposite = card.dataset.opposite;
-                        const category = card.dataset.category;
-                        if (status === 'red') {
-                            redSelections[category] = (redSelections[category] || 0) + 1;
-                        } else {
-                            greenSelections[category] = (greenSelections[category] || 0) + 1;
-                        }
-                        selectedCards.push({ card, status });
-                        card.style.visibility = 'hidden';
-                        animateCardToContainer(card, containerId, iconClass, text, opposite, category, () => {
-                            selectionCount++;  
-                            allSelections.push({ text, category, status });
-                            if (selectionCount === 4 || (selectionCount < 4 && progressContainer.children.length === 0)) {
-                                const remainingCard = Array.from(cards).find(c => c.style.display !== 'none' && c.style.visibility !== 'hidden');
-                                if (remainingCard) {
-                                    const neitherText = remainingCard.dataset.text;
-                                    const neitherOpposite = remainingCard.dataset.opposite;
-                                    const neitherCategory = remainingCard.dataset.category;
-                                    animateCardToContainer(remainingCard, 'neither-container', 'neither-icon', neitherText, neitherOpposite, neitherCategory, () => {
-                                        currentSetIndex++;
-                                        displaySet();
-                                    });
-                                    remainingCard.style.visibility = 'hidden';
-                                    allSelections.push({ text: neitherText, category: neitherCategory, status: 'grey' });
-                                } else {
+    card.addEventListener('click', () => {
+    if (card.style.display === 'none' || isAnimating) return;
+    if (!isFlipped) {
+        flipCards();
+    } else {
+        if (card.classList.contains('selected-card')) {
+            if (!card.classList.contains('darkened')) {
+                // Strengthen (darken) only once
+                card.classList.add('darkened');
+                const status = card.classList.contains('green') ? 'green' : 'red';
+                const darkColor = status === 'green' ? '#7b9c7b' : '#cc6666';
+                card.querySelector('.front').style.setProperty('background-color', darkColor, 'important');
+            }
+            return; // No further action for additional clicks
+        } else if (selectionCount < 4) {
+            isAnimating = true;
+            const isRejectPhase = document.getElementById('card-container').classList.contains('reject-phase');
+            const status = isRejectPhase ? 'red' : 'green';
+            const containerId = isRejectPhase ? 'rejected-container' : 'selected-container';
+            const iconClass = isRejectPhase ? 'rejected-icon' : 'selected-icon';
+            const text = card.dataset.text;
+            const opposite = card.dataset.opposite;
+            const category = card.dataset.category;
+            if (status === 'red') {
+                redSelections[category] = (redSelections[category] || 0) + 1;
+            } else {
+                greenSelections[category] = (greenSelections[category] || 0) + 1;
+            }
+            selectedCards.push({ card, status });
+            // Apply drop, shrink, and border without animating to container yet
+            card.classList.add('selected-card', status);
+            card.style.transform = `translateY(${SELECTED_DROP_Y}) scale(${SELECTED_SCALE})`;
+            card.style.fontSize = `${16 * SELECTED_FONT_SCALE}px`; // Adjust font size proportionally
+            card.style.border = `${BORDER_WIDTH} solid ${status === 'green' ? DARK_GREEN_BORDER : DARK_RED_BORDER}`;
+            selectionCount++;
+            allSelections.push({ text, category, status });
+            if (selectionCount === 1) {
+                STRENGTHEN_INSTRUCTION.style.display = 'block';
+            }
+            setTimeout(() => { // Small delay to complete drop animation
+                if (selectionCount === 4 || (selectionCount < 4 && progressContainer.children.length === 0)) {
+                    setTimeout(() => { // Delay before animating all to containers
+                        selectedCards.forEach(({ card, status }) => {
+                            const containerId = status === 'red' ? 'rejected-container' : 'selected-container';
+                            const iconClass = status === 'red' ? 'rejected-icon' : 'selected-icon';
+                            const text = card.dataset.text;
+                            const opposite = card.dataset.opposite;
+                            const category = card.dataset.category;
+                            card.style.visibility = 'hidden';
+                            animateCardToContainer(card, containerId, iconClass, text, opposite, category, () => {}, card.classList.contains('darkened'));
+                        });
+                        const remainingCard = Array.from(cards).find(c => c.style.display !== 'none' && !c.classList.contains('selected-card'));
+                        if (remainingCard) {
+                            const neitherText = remainingCard.dataset.text;
+                            const neitherOpposite = remainingCard.dataset.opposite;
+                            const neitherCategory = remainingCard.dataset.category;
+                            // Apply drop/shrink/border to remaining card before animating
+                            remainingCard.classList.add('selected-card', 'grey'); // Use grey for neither, but no border color needed
+                            remainingCard.style.transform = `translateY(${SELECTED_DROP_Y}) scale(${SELECTED_SCALE})`;
+                            remainingCard.style.fontSize = `${16 * SELECTED_FONT_SCALE}px`;
+                            setTimeout(() => {
+                                remainingCard.style.visibility = 'hidden';
+                                animateCardToContainer(remainingCard, 'neither-container', 'neither-icon', neitherText, neitherOpposite, neitherCategory, () => {
                                     currentSetIndex++;
                                     displaySet();
-                                }
-                            } else {
-                                instruction.innerText = isRejectPhase ? "                                                     choose the card MOST like you\n                                                     (if none then reverse sentiment)\n\n\n\n" : "                                                     choose the card MOST like you\n                                                     (if none then reverse sentiment)\n\n\n\n";
-                                document.getElementById('undo-button').style.display = 'block';
-                                document.getElementById('reverse-button').style.display = (5 - selectionCount) >= 2 ? 'block' : 'none';
-                                document.getElementById('reverse-button').style.backgroundColor = isRejectPhase ? '#abcfab' : '#ff9999'; /* Opposite of current card color */
-                                isAnimating = false;
-                            }
-                        });
-                    }
-                });
+                                });
+                            }, SELECTED_DROP_DELAY);
+                            allSelections.push({ text: neitherText, category: neitherCategory, status: 'grey' });
+                        } else {
+                            currentSetIndex++;
+                            displaySet();
+                        }
+                        selectedCards = []; // Reset after animation
+                        STRENGTHEN_INSTRUCTION.style.display = 'none'; // Hide instruction after set completes
+                    }, SELECTED_DROP_DELAY);
+                } else {
+                    instruction.innerText = CHOOSE_MOST_LIKE_YOU;
+                    document.getElementById('undo-button').style.display = 'block';
+                    document.getElementById('reverse-button').style.display = (CARDS_PER_SET - selectionCount) >= 2 ? 'block' : 'none';
+                    document.getElementById('reverse-button').style.backgroundColor = isRejectPhase ? '#abcfab' : '#ff9999'; /* Opposite of current card color */
+                    isAnimating = false;
+                }
+            }, 300); // Short delay for drop animation
+        }
+    }
+});
             }
             displaySet();
         }, { once: true });
     }, { once: true });
 }
-       instruction.innerText =
-    `You are about to go through an interactive experience that will ask you some questions you may find very sensitive.\n
-    This session is totally anonymous, 
-    your name is not recorded and no-one can see what you enter.\n
-    At the end of the session you will get a results summary.
-    This should give you insight into some of your deeper motivations and potential blockers to your learning.\n
-    This can be very useful for your coach. It is up to you to forward your results at the end. If you take no action, all data is deleted\n
-    To forward your results, just copy and paste your results summary at the end into an email and send it.\n
-    The full session will take 20 to 30 minutes
-    When you are ready to progress click continue\n\n\n\n\n\n\n\n`;
+       instruction.innerText = INITIAL_PROMPT;
 continueButton.style.display = 'block';
 continueButton.focus();
-
 function undoRejection() {
     if (selectedCards.length > 0 && selectionCount > 0) {
         const lastCard = selectedCards.pop();
@@ -1400,38 +1594,54 @@ function undoRejection() {
             container.removeChild(container.lastChild);
         }
         lastCard.card.style.visibility = 'visible';
+        lastCard.card.classList.remove('selected-card', lastCard.status);
+lastCard.card.style.transform = '';
+lastCard.card.style.fontSize = '16px';
+lastCard.card.style.border = 'none';
+lastCard.card.classList.remove('darkened');
+lastCard.card.style.removeProperty('--dark-color');
         const cardContainer = document.getElementById('card-container');
         const isRejectPhase = cardContainer.classList.contains('reject-phase');
         lastCard.card.querySelector('.front').innerText = isRejectPhase ? lastCard.card.dataset.opposite : lastCard.card.dataset.text;
         lastCard.card.title = isRejectPhase ? lastCard.card.dataset.text : lastCard.card.dataset.opposite;
         lastCard.card.querySelector('.front').style.backgroundColor = isRejectPhase ? '#ff9999' : '#abcfab';
-        instruction.innerText = "                                                     choose the card MOST like you\n                                                     (if none then reverse sentiment)\n\n\n\n";
+        instruction.innerText = CHOOSE_MOST_LIKE_YOU;
         document.getElementById('undo-button').style.display = 'block';
-        document.getElementById('reverse-button').style.display = (5 - selectionCount) >= 2 ? 'block' : 'none';
+        document.getElementById('reverse-button').style.display = (CARDS_PER_SET - selectionCount) >= 2 ? 'block' : 'none';
     }
 }
-
 function reverseSentiment() {
-    if (isAnimating || selectionCount >= 4 || (5 - selectionCount) < 2) return;
+    if (isAnimating || selectionCount >= 4 || (CARDS_PER_SET - selectionCount) < 2) return;
     const cardContainer = document.getElementById('card-container');
     const isRejectPhase = cardContainer.classList.contains('reject-phase');
     cardContainer.classList.toggle('reject-phase');
     cardContainer.classList.toggle('select-phase');
     const remainingCards = Array.from(cards).filter(c => c.style.display !== 'none' && c.style.visibility !== 'hidden');
-    remainingCards.forEach(card => {
+remainingCards.forEach(card => {
+    if (!card.classList.contains('selected-card')) {
         card.querySelector('.front').innerText = isRejectPhase ? card.dataset.text : card.dataset.opposite;
         card.title = isRejectPhase ? card.dataset.opposite : card.dataset.text;
-        card.querySelector('.front').style.backgroundColor = isRejectPhase ? '#abcfab' : '#ff9999'; /* Light green, Light red */
-    });
+        card.querySelector('.front').style.backgroundColor = isRejectPhase ? '#abcfab' : '#ff9999';
+    }
+});
     document.getElementById('reverse-button').style.backgroundColor = isRejectPhase ? '#ff9999' : '#abcfab'; /* Opposite of new card color */
 }
-
 cards.forEach((card, index) => {
-    card.addEventListener('click', () => {
-        if (card.style.display === 'none' || isAnimating) return;
-        if (!isFlipped) {
-            flipCards();
-        } else if (selectionCount < 4) {
+card.addEventListener('click', () => {
+    if (card.style.display === 'none' || isAnimating) return;
+    if (!isFlipped) {
+        flipCards();
+    } else {
+if (card.classList.contains('selected-card')) {
+    if (!card.classList.contains('darkened')) {
+        // Strengthen (darken) only once
+        card.classList.add('darkened');
+        const status = card.classList.contains('green') ? 'green' : 'red';
+        const darkColor = status === 'green' ? '#7b9c7b' : '#cc6666';
+        card.querySelector('.front').style.backgroundColor = darkColor;
+    }
+    return; // No further action for additional clicks
+} else if (selectionCount < 4) {
             isAnimating = true;
             const isRejectPhase = document.getElementById('card-container').classList.contains('reject-phase');
             const status = isRejectPhase ? 'red' : 'green';
@@ -1446,41 +1656,66 @@ cards.forEach((card, index) => {
                 greenSelections[category] = (greenSelections[category] || 0) + 1;
             }
             selectedCards.push({ card, status });
-            animateCardToContainer(card, containerId, iconClass, text, opposite, category, () => {
-                selectionCount++;
-                card.style.visibility = 'hidden';
-                allSelections.push({ text, category, status });
-                if (selectionCount === 4 || (selectionCount < 4 && progressContainer.children.length === 0)){
-                    const remainingCard = Array.from(cards).find(c => c.style.display !== 'none' && c.style.visibility !== 'hidden');
-                    if (remainingCard) {
-                        const neitherText = remainingCard.dataset.text;
-                        const neitherOpposite = remainingCard.dataset.opposite;
-                        const neitherCategory = remainingCard.dataset.category;
-                        animateCardToContainer(remainingCard, 'neither-container', 'neither-icon', neitherText, neitherOpposite, neitherCategory, () => {
+            // Apply drop, shrink, and border without animating to container yet
+            card.classList.add('selected-card', status);
+            card.style.transform = `translateY(${SELECTED_DROP_Y}) scale(${SELECTED_SCALE})`;
+            card.style.fontSize = `${16 * SELECTED_FONT_SCALE}px`; // Adjust font size proportionally
+            card.style.border = `${BORDER_WIDTH} solid ${status === 'green' ? DARK_GREEN_BORDER : DARK_RED_BORDER}`;
+            selectionCount++;
+            allSelections.push({ text, category, status });
+            setTimeout(() => { // Small delay to complete drop animation
+                if (selectionCount === 1) {
+                    STRENGTHEN_INSTRUCTION.style.display = 'block';
+                }
+                if (selectionCount === 4 || (selectionCount < 4 && progressContainer.children.length === 0)) {
+                    setTimeout(() => { // Delay before animating all to containers
+                        selectedCards.forEach(({ card, status }) => {
+                            const containerId = status === 'red' ? 'rejected-container' : 'selected-container';
+                            const iconClass = status === 'red' ? 'rejected-icon' : 'selected-icon';
+                            const text = card.dataset.text;
+                            const opposite = card.dataset.opposite;
+                            const category = card.dataset.category;
+                            card.style.visibility = 'hidden';
+                            animateCardToContainer(card, containerId, iconClass, text, opposite, category, () => {}, card.classList.contains('darkened'));
+                        });
+                        const remainingCard = Array.from(cards).find(c => c.style.display !== 'none' && !c.classList.contains('selected-card'));
+                        if (remainingCard) {
+                            const neitherText = remainingCard.dataset.text;
+                            const neitherOpposite = remainingCard.dataset.opposite;
+                            const neitherCategory = remainingCard.dataset.category;
+                            // Apply drop/shrink/border to remaining card before animating
+                            remainingCard.classList.add('selected-card', 'grey'); // Use grey for neither, but no border color needed
+                            remainingCard.style.transform = `translateY(${SELECTED_DROP_Y}) scale(${SELECTED_SCALE})`;
+                            remainingCard.style.fontSize = `${16 * SELECTED_FONT_SCALE}px`;
+                            setTimeout(() => {
+                                remainingCard.style.visibility = 'hidden';
+                                animateCardToContainer(remainingCard, 'neither-container', 'neither-icon', neitherText, neitherOpposite, neitherCategory, () => {
+                                    currentSetIndex++;
+                                    displaySet();
+                                });
+                            }, SELECTED_DROP_DELAY);
+                            allSelections.push({ text: neitherText, category: neitherCategory, status: 'grey' });
+                        } else {
                             currentSetIndex++;
                             displaySet();
-                        });
-                        remainingCard.style.visibility = 'hidden';
-                        allSelections.push({ text: neitherText, category: neitherCategory, status: 'grey' });
-                    } else {
-                        currentSetIndex++;
-                        displaySet();
-                    }
+                        }
+                        selectedCards = []; // Reset after animation
+                        STRENGTHEN_INSTRUCTION.style.display = 'none'; // Hide instruction after set completes
+                    }, SELECTED_DROP_DELAY);
                 } else {
-                    instruction.innerText = "                                                     choose the card MOST like you\n                                                     (if none then reverse sentiment)\n\n\n\n";
+                    instruction.innerText = CHOOSE_MOST_LIKE_YOU;
                     document.getElementById('undo-button').style.display = 'block';
-                    document.getElementById('reverse-button').style.display = (5 - selectionCount) >= 2 ? 'block' : 'none';
+                    document.getElementById('reverse-button').style.display = (CARDS_PER_SET - selectionCount) >= 2 ? 'block' : 'none';
                     document.getElementById('reverse-button').style.backgroundColor = isRejectPhase ? '#abcfab' : '#ff9999'; /* Opposite of current card color */
                     isAnimating = false;
                 }
-            });
+            }, 300); // Short delay for drop animation
         }
-    });
+    }
 });
-
+});
 document.getElementById('reverse-button').addEventListener('click', reverseSentiment);
 document.getElementById('undo-button').addEventListener('click', undoRejection);
-
 const autoProgressButton = document.getElementById('auto-progress');
 autoProgressButton.addEventListener('click', () => {
     autoProgressButton.disabled = true;
@@ -1491,10 +1726,10 @@ autoProgressButton.addEventListener('click', () => {
             clearInterval(interval);
             return;
         }
-        if (instructionText === "Click any card to begin") {
+        if (instructionText === CLICK_ANY_CARD) {
             const visibleCards = Array.from(cards).filter(c => c.style.display !== 'none');
             if (visibleCards.length > 0) visibleCards[0].click(); // Flip the first card to start
-        } else if (instructionText !== "Click any card to begin") {
+        } else if (instructionText !== CLICK_ANY_CARD) {
             const visibleCards = Array.from(cards).filter(c => c.style.display !== 'none' && c.style.visibility !== 'hidden');
             if (visibleCards.length > 0) {
                 visibleCards[0].click(); // Select first card
@@ -1510,12 +1745,12 @@ autoProgressButton.addEventListener('click', () => {
             }
         } else if (instructionText.includes("When you are ready to start click continue")) {
             continueButton.click();
-        } else if (instructionText === "Click continue to begin the game") {
+        } else if (instructionText === BEGIN_GAME_INSTRUCTION) {
             continueButton.click();
         } else if (instructionText.includes("Please click on Continue")) {
             console.log('Auto Progress: Clicking Continue button');
             continueButton.click();
-        } else if (instructionText === "All sets completed! Click Continue to proceed to the next phase.") {
+        } else if (instructionText === ALL_SETS_COMPLETED_INSTRUCTION) {
             clearInterval(interval);
         }
     }, 300);
