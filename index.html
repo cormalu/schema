@@ -65,19 +65,19 @@
     box-sizing: border-box;
 }
 .selected-card.green {
-    border-color: #7b9c7b; /* Darker green for border */
+    border-color: #C97814; /* Darker green for border */
 }
 .selected-card.red {
-    border-color: #cc6666; /* Darker red for border */
+    border-color: #006400; /* Darker red for border */
 }
 .selected-card.darkened .front {
     font-weight: bold;
 }
 #card-container .selected-card.green .front {
-    background-color: #abcfab !important;
+    background-color: #FFA500 !important;
 }
 #card-container .selected-card.red .front {
-    background-color: #ff9999 !important;
+    background-color: #90EE90 !important;
 }
 .card-wrapper {
     width: 160px; /* Smaller width */
@@ -135,10 +135,10 @@ background: repeating-linear-gradient(
             box-sizing: border-box;
         }
 #card-container.reject-phase .front {
-    background-color: #ff9999; /* Light red */
+    background-color: #90EE90; /* Light red */
 }
 #card-container.select-phase .front {
-    background-color: #abcfab; /* Light green */
+    background-color: #FFA500; /* Light green */
         }
         .flipped .back {
             transform: rotateY(180deg);
@@ -166,7 +166,7 @@ background: repeating-linear-gradient(
     transform: translateY(-50%);
     display: none; /* Hidden initially */
     grid-template-columns: repeat(10, 40px); /* 10 columns wide */
-    gap: 18px; /* Increased spacing between rows and columns */
+    gap: 10px; /* Increased spacing between rows and columns */
     width: 488px; /* Adjusted for 10 columns of 40px + gaps */
     background-color: transparent;
 }
@@ -255,26 +255,26 @@ background: repeating-linear-gradient(
 .selected-icon {
     width: 40px;
     height: 20px;
-    background-color: #abcfab; /* Light green */
+    background-color: #FFA500; /* Light green */
     border-radius: 4px;
     margin: 2px;
     box-sizing: border-box;
     position: relative; /* Ensure dot positions relative to brick */
 }
 .selected-icon.darkened {
-    background-color: #7b9c7b; /* Dark green */
+    background-color: #C97814; /* Dark green */
 }
 .rejected-icon {
     width: 40px;
     height: 20px;
-    background-color: #ff9999; /* Light red */
+    background-color: #90EE90; /* Light red */
     margin: 2px;
     border-radius: 4px;
     box-sizing: border-box;
     position: relative; /* Ensure dot positions relative to brick */
 }
 .rejected-icon.darkened {
-    background-color: #cc6666; /* Dark red */
+    background-color: #006400; /* Dark red */
 }
         .neither-icon {
             width: 40px;
@@ -371,21 +371,12 @@ background: repeating-linear-gradient(
             cursor: pointer;
             position: relative;
         }
-.neither-icon.marked::after {
-    content: '';
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    width: 8px;
-    height: 8px;
-    background-color: #000000; /* Black dot for marking */
-    border-radius: 50%;
-}
+
 .rejected-icon.darkened {
-    background-color: #cc6666; /* Darker red */
+    background-color: #006400; /* Darker red */
 }
 .selected-icon.darkened {
-    background-color: #7b9c7b; /* Darker green */
+    background-color: #C97814; /* Darker green */
 }
 .tooltip {
     position: absolute;
@@ -410,9 +401,13 @@ background: repeating-linear-gradient(
     text-align: left;
     opacity: 1;
 }
-.neither-icon:hover .tooltip {
-    right: 0; /* Right-justified for grey bricks */
-    text-align: right;
+#neither-container .tooltip {
+    right: 0 !important;
+    text-align: right !important;
+    left: auto !important;
+    color: #808080 !important;
+}
+#neither-container :hover .tooltip {
     opacity: 1;
 }
 #selected-container .neither-icon .tooltip,
@@ -427,15 +422,13 @@ background: repeating-linear-gradient(
         <div id="progress-container"></div>
         <div id="selected-container"></div>
         <div id="instruction"></div>
-        <div id="timer-label"></div>
-        <canvas id="timer-canvas" width="100" height="100" class="hidden"></canvas>
 <div id="card-container" class="hidden" style="display: none;">
     <div id="strengthen-instruction">If a statement is particularly true, click on any selected card to strengthen it</div>
     <!-- Cards will be dynamically created after the second "Continue" click -->
      </div>
 <button id="undo-button">Undo last selection</button>
 <button id="reverse-button" style="position: absolute; top: -20%; left: calc(50% + 50px); padding: 10px 20px; border-radius: 20px;
-font-size: 16px; font-weight: bold; background-color: #abcfab; border: none; cursor: pointer;
+font-size: 16px; font-weight: bold; background-color: #FFA500; border: none; cursor: pointer;
 display: none; z-index: 1000;">Reverse Sentiment</button>
 <button id="auto-progress" style="position: absolute; left: 50%; transform: translateX(-50%); bottom: -100px; padding: 5px 15px; border-radius: 20px; font-size: 14px; background-color: #ddd; border: none; cursor: pointer;">Auto Progress</button>
         <button id="continue-button">Continue</button>
@@ -458,7 +451,7 @@ display: none; z-index: 1000;">Reverse Sentiment</button>
 "I have rarely had a strong person to give me advice or direction when I need it. | I have usually had a strong person to give me advice or direction when I need it.|ed",
 "I worry that the people I love will die soon, even though there is little medical reason for me to worry. | I don't tend to worry or think much about the fact that the people I love will die at some time.|ab",
 "I find myself clinging to people I am close to, because I am afraid they will leave me. | I am pretty secure with the people I am close to, I never think about them leaving me.|ab",
-"I worry that people I feel close to will leave me or abandon me. |I never worry that people I feel close to will leave me or abandon me.e|a",
+"I worry that people I feel close to will leave me or abandon me. |I never worry that people I feel close to will leave me or abandon me.|a",
 "I feel that I lack a stable base of support from someone who cares about me. | I feel that I have a stable base of support from someone who cares about me.|ab",
 "I do not feel that important relationships will last; I expect them to end. | I generally feel that important relationships will last.|ab",
 "I feel addicted to partners who cannot be there for me in a committed way. | I tend to find partners who can be there for me in a committed way.|ab",
@@ -701,18 +694,15 @@ display: none; z-index: 1000;">Reverse Sentiment</button>
             {group: "IL", category: "is", descriptor: "What I want right now takes over", total: 15}
         ];
         const STRENGTHEN_INSTRUCTION = document.getElementById('strengthen-instruction');
-        const SELECTED_DROP_DELAY = 500; // Delay in ms before animating selected cards to containers after 4th selection
+        const SELECTED_DROP_DELAY = 800; // Delay in ms before animating selected cards to containers after 4th selection
 const SELECTED_DROP_Y = '20px'; // Amount to drop selected cards
 const SELECTED_SCALE = 0.9; // Shrink factor for selected cards
 const SELECTED_FONT_SCALE = 0.9; // Font size scale factor (original front font-size is 16px)
 const BORDER_WIDTH = '3px'; // Border width for selected cards
-const DARK_GREEN_BORDER = '#7b9c7b'; // Darker green border color
-const DARK_RED_BORDER = '#cc6666'; // Darker red border color
+const DARK_GREEN_BORDER = '#C97814'; // Darker green border color
+const DARK_RED_BORDER = '#006400'; // Darker red border color
         const TOTAL_QUESTIONS = 232; // Total number of questions in the game
         const CARDS_PER_SET = 5; // Number of cards drawn per set
-        const UPDATE_TIMER_DURATION = 120; // Duration for update phase timer in seconds
-        const TIMER_EXTENSION = 60; // Seconds added when clicking the timer
-        const TIMER_DEFAULT_TOTAL = 10; // Default total time for drawTimer function (overridden by UPDATE_TIMER_DURATION)
         const ENCODED_DIGITS = 63; // Number of digits in the base58 encoded string (excluding checksum)
         const FINAL_LENGTH = 64; // Final encoded string length including checksum
         const WORD_LENGTH = 8; // Length of each word in the formatted result
@@ -724,9 +714,7 @@ const DARK_RED_BORDER = '#cc6666'; // Darker red border color
             IAP: '#800080',
             IL: '#FF0000'
         };
-        const TIMER_COLOR_RED = '#e30b28'; // Timer stroke color for red phase
-        const TIMER_COLOR_GREEN = '#01b342'; // Timer stroke color for green phase
-        const TIMER_COLOR_GREY = '#a3a0a0'; // Timer stroke color for grey phase
+
         const INITIAL_PROMPT = `You are about to go through an interactive experience that will ask you some questions you may find very sensitive.\n
 This session is totally anonymous,
 your name is not recorded and no-one can see what you enter.\n
@@ -754,7 +742,6 @@ When you are ready to start click continue\n\n\n\n\n\n`; // Introduction to game
         const UPDATE_RED_INSTRUCTION = "You have completed the first phase of the game.\nYou likely had to choose some cards (both red and green) that you felt more strongly than others.The grey cards were what was left, probably most of these are in-between.\n\nThe next section lets you change some of those cards.\n\nWhen you click below, a 2 minute timer will appear.\n\nYou can now hover your mouse over any red card, you will see the statement you chose. You can click to strengthen that card (darker red) or to weaken it (grey).\n\nYou can click as many bricks as you like during the 2 minute period.\nPlease click on Continue when you are ready."; // Instruction for red update phase
         const UPDATE_GREEN_INSTRUCTION = "Thank you for updating your red bricks.\nNow please update your green bricks in the same way.\n\nEach green brick represents a card you have chosen that resonates with you. If you want to change your choice, click to change to red -- or grey if not sure.\n\nPlease click on Continue when you are ready."; // Instruction for green update phase
         const UPDATE_GREY_INSTRUCTION = "Now you will have 2 minutes to update your grey bricks. These represent the cards that you neither rejected or selected.\n\nClick on any grey brick to change it to green, and again to change it to red.\n\nPlease click on Continue when you are ready."; // Instruction for grey update phase
-        const TIMER_LABEL_TEXT = "Click to add 60s"; // Label for timer extension
         const RESULTS_HTML = '<h2>Results</h2><pre></pre>'; // Initial HTML for results container
         const COPY_SUCCESS_MESSAGE = 'Results copied to clipboard!'; // Alert on successful copy
         const COPY_FAIL_MESSAGE = 'Failed to copy results.'; // Alert on failed copy
@@ -800,39 +787,14 @@ let timerInterval = null;
 let cards = [];
 const instruction = document.getElementById('instruction');
 const progressContainer = document.getElementById('progress-container');
-const timerCanvas = document.getElementById('timer-canvas');
-const timerLabel = document.getElementById('timer-label');
-timerLabel.innerText = TIMER_LABEL_TEXT;
 const continueButton = document.getElementById('continue-button');
 const reverseButton = document.getElementById('reverse-button');
-        const ctx = timerCanvas.getContext('2d');
 const allQuestions = [];
 for (const category in questionsByCategory) {
     allQuestions.push(...questionsByCategory[category].map(q => ({ text: q.question, opposite: q.opposite, category })));
 }
 shuffle(allQuestions);
 // Delay creation of blue bricks until second "Continue" click
-function drawTimer(seconds, totalTime = TIMER_DEFAULT_TOTAL) {
-    ctx.clearRect(0, 0, timerCanvas.width, timerCanvas.height);
-    const centerX = timerCanvas.width / 2;
-    const centerY = timerCanvas.height / 2;
-    const radius = 40;
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.fillStyle = '#ddd';
-    ctx.fill();
-    ctx.beginPath();
-    const progress = seconds / totalTime;
-    ctx.arc(centerX, centerY, radius, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * (1 - progress), false);
-    ctx.strokeStyle = updatePhase === 'red' ? TIMER_COLOR_RED : updatePhase === 'green' ? TIMER_COLOR_GREEN : TIMER_COLOR_GREY; /* Red, Green, Grey */
-    ctx.lineWidth = 10;
-    ctx.stroke();
-    ctx.font = '16px Arial';
-    ctx.fillStyle = '#000';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(`${seconds}s`, centerX, centerY);
-}
 function getNextSet() {
     const availableQuestions = [];
     for (const category in remainingQuestionsByCategory) {
@@ -899,9 +861,6 @@ function animateCardToContainer(card, containerId, iconClass, text, opposite, ca
     const initialRect = card.getBoundingClientRect();
     const frontClone = card.querySelector('.front').cloneNode(true);
     frontClone.className = 'temp-icon';
-    if (isDarkened) {
-        frontClone.style.backgroundColor = card.querySelector('.front').style.backgroundColor;
-    }
     frontClone.style.left = initialRect.left + 'px';
     frontClone.style.top = initialRect.top + 'px';
     frontClone.style.width = initialRect.width + 'px';
@@ -925,11 +884,54 @@ function animateCardToContainer(card, containerId, iconClass, text, opposite, ca
     tooltip.className = 'tooltip';
     tooltip.textContent = actualIcon.dataset.tooltip;
     actualIcon.appendChild(tooltip);
+    // Add click listener with full behavior
+    let lastClickTime = 0;
+    const debounceDelay = 200;
     actualIcon.addEventListener('click', () => {
-        if (iconClass === 'neither-icon') {
-            actualIcon.classList.toggle('marked');
-        } else {
-            actualIcon.classList.toggle('darkened');
+        const now = Date.now();
+        if (now - lastClickTime < debounceDelay) return;
+        lastClickTime = now;
+        const currentContainerId = actualIcon.parentNode.id;
+        const currentText = actualIcon.dataset.text;
+        const currentOpposite = actualIcon.dataset.opposite;
+        const currentCategory = actualIcon.dataset.category;
+        let currentBrickStatus = actualIcon.classList.contains('rejected-icon') ? 'red' :
+                                  actualIcon.classList.contains('selected-icon') ? 'green' : 'grey';
+        const selection = allSelections.find(sel => sel.text === currentText && sel.status === currentBrickStatus);
+        if (selection) {
+            let newStatus = currentBrickStatus;
+            let newClass = actualIcon.className.replace(' darkened', '').replace('darkened', '');
+            let nextTooltip = actualIcon.dataset.tooltip;
+            if (currentContainerId === 'rejected-container' || currentContainerId === 'selected-container') {
+                actualIcon.classList.toggle('darkened');
+            } else if (currentContainerId === 'neither-container') {
+                actualIcon.classList.remove('darkened');
+                if (currentBrickStatus === 'grey') {
+                    newStatus = 'green';
+                    newClass = 'selected-icon';
+                    greenSelections[currentCategory] = (greenSelections[currentCategory] || 0) + 1;
+                    nextTooltip = currentText;
+                } else if (currentBrickStatus === 'green') {
+                    newStatus = 'red';
+                    newClass = 'rejected-icon';
+                    greenSelections[currentCategory] = (greenSelections[currentCategory] || 0) - 1;
+                    redSelections[currentCategory] = (redSelections[currentCategory] || 0) + 1;
+                    nextTooltip = currentOpposite;
+                } else if (currentBrickStatus === 'red') {
+                    newStatus = 'grey';
+                    newClass = 'neither-icon';
+                    redSelections[currentCategory] = (redSelections[currentCategory] || 0) - 1;
+                    nextTooltip = currentText;
+                }
+                selection.status = newStatus;
+                actualIcon.className = newClass;
+                const oldTooltip = actualIcon.querySelector('.tooltip');
+                if (oldTooltip) actualIcon.removeChild(oldTooltip);
+                const newTooltipElem = document.createElement('div');
+                newTooltipElem.className = 'tooltip';
+                newTooltipElem.textContent = nextTooltip;
+                actualIcon.appendChild(newTooltipElem);
+            }
         }
     }, { once: false });
     requestAnimationFrame(() => {
@@ -967,233 +969,13 @@ function addNeitherIcon(text, opposite, category) {
     document.getElementById('neither-container').appendChild(icon);
     allSelections.push({ text, category, status: 'grey' });
 }
+
 function startUpdatePhase() {
-    console.log('startUpdatePhase called');
-    document.getElementById('game-container').style.display = 'block';
-    document.getElementById('card-container').style.display = 'none';
-    document.getElementById('undo-button').style.display = 'none';
-    document.getElementById('reverse-button').style.display = 'none';
-    document.getElementById('auto-progress').style.display = 'none';
-    document.getElementById('results-container').style.display = 'none';
-    updatePhase = 'red';
-    instruction.innerText = UPDATE_RED_INSTRUCTION;
-    instruction.style.display = 'block';
-    console.log('Setting continueButton.style.display to block, continueButton:', continueButton, 'current style:', continueButton ? continueButton.style.display : 'null');
-    continueButton.style.display = 'block';
-    continueButton.style.zIndex = '1200'; // Ensure it’s above other elements
-    continueButton.style.position = 'relative'; // Reset to ensure visibility
-    console.log('continueButton.style.display set to:', continueButton.style.display);
-    // Force reflow
-    continueButton.offsetHeight;
-    requestAnimationFrame(() => {
-        console.log('After reflow, continueButton.style.display:', continueButton.style.display);
-        continueButton.focus();
-        continueButton.addEventListener('click', () => {
-            console.log('Continue button clicked, starting update phase, progressContainer.children.length:', progressContainer.children.length);
-            // startUpdatePhase(); // Removed recursive call
-            continueButton.style.display = 'none';
-        }, { once: true });
-        console.log('Event listener attached to continueButton, continueButton:', continueButton);
-    });
-    setTimeout(() => {
-        console.log('Continue button display after delay:', continueButton.style.display);
-        instruction.offsetHeight;
-        continueButton.offsetHeight;
-    }, 300);
+    // Removed - directly go to results
+    document.getElementById('game-container').style.display = 'none';
+    displayResults();
 }
-function updateBricks(containerId, currentStatus) {
-    console.log(`updateBricks called for ${containerId} with status ${currentStatus}`);
-    const container = document.getElementById(containerId);
-    const brickClasses = ['rejected-icon', 'selected-icon', 'neither-icon'];
-    const bricks = container.querySelectorAll(brickClasses.map(cls => `.${cls}`).join(','));
-    console.log(`Found ${bricks.length} bricks in ${containerId} with classes ${brickClasses.join(', ')}`);
-    console.log('allSelections before update:', JSON.stringify(allSelections));
-    if (bricks.length === 0) {
-        console.log(`No bricks found in ${containerId}. Checking container contents:`, container.innerHTML);
-    }
-    let lastClickTime = 0;
-    const debounceDelay = 200;
-    bricks.forEach((brick, index) => {
-        brick.classList.add('clickable');
-        const handler = () => {
-            const now = Date.now();
-            if (now - lastClickTime < debounceDelay) {
-                console.log(`Click on brick ${index} ignored: too soon after last click`);
-                return;
-            }
-            lastClickTime = now;
-            const text = brick.dataset.text;
-            const opposite = brick.dataset.opposite;
-            const category = brick.dataset.category;
-            const currentBrickStatus = brick.classList.contains('rejected-icon') ? 'red' :
-                                      brick.classList.contains('selected-icon') ? 'green' : 'grey';
-            const isDarkened = brick.classList.contains('darkened');
-            console.log(`Brick ${index} clicked: text=${text}, currentBrickStatus=${currentBrickStatus}, category=${category}, isDarkened:${isDarkened}`);
-            const selection = allSelections.find(sel => sel.text === text && sel.status === currentBrickStatus);
-            if (selection) {
-                let newStatus = currentBrickStatus;
-                let newClass = brick.className;
-                let nextTooltip = brick.dataset.tooltip;
-                if (containerId === 'rejected-container') {
-                    if (currentBrickStatus === 'red') {
-                        if (isDarkened) {
-                            newStatus = 'grey';
-                            newClass = 'neither-icon';
-                            redSelections[category] = (redSelections[category] || 0) - 1;
-                            nextTooltip = text;
-                            brick.classList.remove('darkened');
-                        } else {
-                            newStatus = 'red';
-                            newClass = 'rejected-icon darkened';
-                            redSelections[category] = (redSelections[category] || 0) + 1;
-                            nextTooltip = opposite;
-                        }
-                    } else if (currentBrickStatus === 'grey') {
-                        newStatus = 'red';
-                        newClass = 'rejected-icon';
-                        redSelections[category] = (redSelections[category] || 0) + 1;
-                        nextTooltip = opposite;
-                    }
-                } else if (containerId === 'selected-container') {
-                    if (currentBrickStatus === 'green') {
-                        if (isDarkened) {
-                            newStatus = 'grey';
-                            newClass = 'neither-icon';
-                            greenSelections[category] = (greenSelections[category] || 0) - 1;
-                            nextTooltip = text;
-                            brick.classList.remove('darkened');
-                        } else {
-                            newStatus = 'green';
-                            newClass = 'selected-icon darkened';
-                            greenSelections[category] = (greenSelections[category] || 0) + 1;
-                            nextTooltip = text;
-                        }
-                    } else if (currentBrickStatus === 'grey') {
-                        newStatus = 'green';
-                        newClass = 'selected-icon';
-                        greenSelections[category] = (greenSelections[category] || 0) + 1;
-                        nextTooltip = text;
-                    }
-                } else if (containerId === 'neither-container') {
-                    // Unchanged for grey
-                    if (currentBrickStatus === 'grey') {
-                        newStatus = 'green';
-                        newClass = 'selected-icon';
-                        greenSelections[category] = (greenSelections[category] || 0) + 1;
-                        nextTooltip = text;
-                    } else if (currentBrickStatus === 'green') {
-                        newStatus = 'red';
-                        newClass = 'rejected-icon';
-                        greenSelections[category] = (greenSelections[category] || 0) - 1;
-                        redSelections[category] = (redSelections[category] || 0) + 1;
-                        nextTooltip = opposite;
-                    } else if (currentBrickStatus === 'red') {
-                        newStatus = 'grey';
-                        newClass = 'neither-icon';
-                        redSelections[category] = (redSelections[category] || 0) - 1;
-                        nextTooltip = text;
-                    }
-                }
-                console.log(`Updating selection: ${text} from ${selection.status} to ${newStatus}`);
-                selection.status = newStatus;
-                brick.className = `${newClass} clickable`;
-                brick.classList.remove('marked'); // Remove dot on click
-                // Update tooltip
-                const oldTooltip = brick.querySelector('.tooltip');
-                if (oldTooltip) brick.removeChild(oldTooltip);
-                const newTooltip = document.createElement('div');
-                newTooltip.className = 'tooltip';
-                newTooltip.textContent = nextTooltip;
-                brick.appendChild(newTooltip);
-                console.log(`Brick ${index} updated in place to ${newClass}, text=${text}`);
-                console.log('allSelections after update:', JSON.stringify(allSelections));
-            } else {
-                console.log(`No matching selection found for text=${text}, status=${currentBrickStatus}`);
-                console.log('allSelections:', JSON.stringify(allSelections));
-            }
-        };
-        brick.removeEventListener('click', brick.onclick);
-        brick.addEventListener('click', handler);
-    });
-}
-        function endUpdatePhase(currentPhase) {
-            console.log('endUpdatePhase called with phase:', currentPhase);
-            clearInterval(timerInterval);
-            timerInterval = null;
-            timerCanvas.classList.add('hidden');
-            const bricks = document.querySelectorAll('.clickable');
-            bricks.forEach(brick => {
-                brick.classList.remove('clickable');
-            });
-            let nextPhase;
-            let nextInstruction;
-            if (currentPhase === 'red') {
-                nextPhase = 'green';
-                nextInstruction = UPDATE_GREEN_INSTRUCTION;
-            } else if (currentPhase === 'green') {
-                nextPhase = 'grey';
-                nextInstruction = UPDATE_GREY_INSTRUCTION;
-            } else {
-                document.getElementById('game-container').style.display = 'none';
-                displayResults();
-                return;
-            }
-            updatePhase = nextPhase;
-            instruction.innerText = nextInstruction;
-            instruction.style.display = 'block';
-            continueButton.style.display = 'block';
-            continueButton.focus();
-            console.log('Continue button display in endUpdatePhase:', continueButton.style.display);
-            const nextContainer = currentPhase === 'red' ? 'selected-container' : 'neither-container';
-            console.log(`Calling updateBricks for ${nextContainer} with status ${nextPhase}`);
-            updateBricks(nextContainer, nextPhase);
-        }
-function timerClickHandler(timeLeft, timeLimit, drawTimer) {
-    timeLeft.value += TIMER_EXTENSION;
-    timeLimit.value += TIMER_EXTENSION;
-    drawTimer(timeLeft.value, timeLimit.value);
-}
-continueButton.addEventListener('click', () => {
-    if (!updatePhase) return;
-    if (timerInterval) clearInterval(timerInterval);
-    console.log('Continue button clicked, initiating timer for updatePhase:', updatePhase);
-    continueButton.style.display = 'none';
-    timerCanvas.classList.remove('hidden');
-    timerCanvas.style.display = 'block';
-    document.getElementById('timer-label').style.display = 'block';
-    document.getElementById('instruction').style.display = 'block';
-    let timeLimit = { value: UPDATE_TIMER_DURATION };
-    let timeLeft = { value: timeLimit.value };
-    drawTimer(timeLeft.value, timeLimit.value);
-    timerInterval = setInterval(() => {
-        console.log('Timer tick, timeLeft:', timeLeft.value, 'updatePhase:', updatePhase);
-        timeLeft.value--;
-        if (timeLeft.value >= 0) {
-            drawTimer(timeLeft.value, timeLimit.value);
-        } else {
-            console.log('Timer expired, clearing interval, calling endUpdatePhase with updatePhase:', updatePhase);
-            clearInterval(timerInterval);
-            timerInterval = null;
-            timerCanvas.removeEventListener('click', currentHandler);
-            document.getElementById('timer-label').style.display = 'none';
-            document.getElementById('instruction').style.display = 'none';
-            endUpdatePhase(updatePhase);
-        }
-    }, 1000);
-    const currentHandler = () => timerClickHandler(timeLeft, timeLimit, drawTimer);
-    timerCanvas.removeEventListener('click', currentHandler);
-    timerCanvas.addEventListener('click', currentHandler);
-    if (updatePhase === 'red') {
-        console.log('Initializing updateBricks for rejected-container with red phase');
-        updateBricks('rejected-container', 'red');
-    } else if (updatePhase === 'green') {
-        console.log('Initializing updateBricks for selected-container with green phase');
-        updateBricks('selected-container', 'green');
-    } else if (updatePhase === 'grey') {
-        console.log('Initializing updateBricks for neither-container with grey phase');
-        updateBricks('neither-container', 'grey');
-    }
-});
+
     function bigIntToBase(n, base, digits) {
     if (n === 0n) return digits[0].repeat(ENCODED_DIGITS);
     let result = [];
@@ -1323,7 +1105,8 @@ function displaySet() {
         document.getElementById('auto-progress').style.display = 'none';
         document.getElementById('game-container').style.display = 'block';
         console.log('Initiating phase transition, calling startUpdatePhase directly');
-        startUpdatePhase(); // Direct call to ensure phase transition
+document.getElementById('game-container').style.display = 'none';
+displayResults();
         console.log('startUpdatePhase called, continueButton setup to follow');
         // Optional manual continue button as fallback
         console.log('Setting continueButton.style.display to block, continueButton:', continueButton);
@@ -1333,7 +1116,8 @@ function displaySet() {
         console.log('continueButton.style.display set to:', continueButton.style.display);
         continueButton.addEventListener('click', () => {
             console.log('Continue button clicked, starting update phase manually, progressContainer.children.length:', progressContainer.children.length);
-            startUpdatePhase();
+document.getElementById('game-container').style.display = 'none';
+displayResults();
             continueButton.style.display = 'none';
         }, { once: true });
         console.log('Event listener attached to continueButton, continueButton:', continueButton);
@@ -1391,7 +1175,7 @@ card.style.border = 'none';
 card.style.fontSize = '16px'; // Reset to original
 card.style.removeProperty('--dark-color');
             card.querySelector('.front').innerText = set[index].text;
-            card.querySelector('.front').style.backgroundColor = '#abcfab'; /* Light green */
+            card.querySelector('.front').style.backgroundColor = '#FFA500'; /* Light green */
             card.dataset.category = set[index].category;
             card.dataset.text = set[index].text;
             card.dataset.opposite = set[index].opposite;
@@ -1413,7 +1197,7 @@ card.style.removeProperty('--dark-color');
     document.getElementById('card-container').classList.add('select-phase');
     document.getElementById('undo-button').style.display = 'none';
     document.getElementById('reverse-button').style.display = 'none';
-    document.getElementById('reverse-button').style.backgroundColor = '#ff9999'; /* Light red, as cards start green */
+    document.getElementById('reverse-button').style.backgroundColor = '#90EE90'; /* Light red, as cards start green */
     document.getElementById('auto-progress').style.display = 'block'; // Show auto-progress button
     continueButton.style.display = 'none';
 }
@@ -1422,7 +1206,7 @@ function flipCards() {
         if (card.style.display !== 'none') {
             card.classList.add('flipped');
             card.querySelector('.front').innerText = card.dataset.opposite;
-            card.querySelector('.front').style.backgroundColor = '#ff9999'; /* Light red */
+            card.querySelector('.front').style.backgroundColor = '#90EE90'; /* Light red */
             card.removeAttribute('title'); // Remove card tooltip
         }
     });
@@ -1433,7 +1217,7 @@ function flipCards() {
     document.getElementById('card-container').classList.add('reject-phase');
     document.getElementById('undo-button').style.display = 'block';
     document.getElementById('reverse-button').style.display = 'block';
-    document.getElementById('reverse-button').style.backgroundColor = '#abcfab'; /* Light green */
+    document.getElementById('reverse-button').style.backgroundColor = '#FFA500'; /* Light green */
 }
         document.getElementById('continue-button').addEventListener('click', startGame, { once: true });
 function startGame() {
@@ -1480,21 +1264,26 @@ function startGame() {
                 cardContainer.appendChild(cardWrapper);
                 cards.push(card);
                 // Attach click event listener to each new card
-    card.addEventListener('click', () => {
-    if (card.style.display === 'none' || isAnimating) return;
+card.addEventListener('click', () => {
+    if (card.style.display === 'none') return;
     if (!isFlipped) {
         flipCards();
     } else {
         if (card.classList.contains('selected-card')) {
-            if (!card.classList.contains('darkened')) {
-                // Strengthen (darken) only once
-                card.classList.add('darkened');
-                const status = card.classList.contains('green') ? 'green' : 'red';
-                const darkColor = status === 'green' ? '#7b9c7b' : '#cc6666';
-                card.querySelector('.front').style.setProperty('background-color', darkColor, 'important');
+            card.classList.toggle('darkened');
+            const front = card.querySelector('.front');
+            const status = card.classList.contains('green') ? 'green' : 'red';
+            const regularColor = status === 'green' ? '#FFA500' : '#90EE90';
+            const darkColor = status === 'green' ? '#C97814' : '#006400';
+            if (card.classList.contains('darkened')) {
+                front.style.setProperty('background-color', darkColor, 'important');
+                front.style.setProperty('font-weight', 'bold', 'important');
+            } else {
+                front.style.setProperty('background-color', regularColor, 'important');
+                front.style.setProperty('font-weight', 'normal', 'important');
             }
-            return; // No further action for additional clicks
-        } else if (selectionCount < 4) {
+            return;
+        } else if (selectionCount < 4 && !isAnimating) {
             isAnimating = true;
             const isRejectPhase = document.getElementById('card-container').classList.contains('reject-phase');
             const status = isRejectPhase ? 'red' : 'green';
@@ -1559,7 +1348,7 @@ function startGame() {
                     instruction.innerText = CHOOSE_MOST_LIKE_YOU;
                     document.getElementById('undo-button').style.display = 'block';
                     document.getElementById('reverse-button').style.display = (CARDS_PER_SET - selectionCount) >= 2 ? 'block' : 'none';
-                    document.getElementById('reverse-button').style.backgroundColor = isRejectPhase ? '#abcfab' : '#ff9999'; /* Opposite of current card color */
+                    document.getElementById('reverse-button').style.backgroundColor = isRejectPhase ? '#FFA500' : '#90EE90'; /* Opposite of current card color */
                     isAnimating = false;
                 }
             }, 300); // Short delay for drop animation
@@ -1577,6 +1366,10 @@ continueButton.focus();
 function undoRejection() {
     if (selectedCards.length > 0 && selectionCount > 0) {
         const lastCard = selectedCards.pop();
+        const category = lastCard.card.dataset.category;
+        const question = lastCard.card.dataset.text;
+        const opposite = lastCard.card.dataset.opposite;
+        remainingQuestionsByCategory[category].push({ question, opposite });
         selectionCount--;
         const containerId = lastCard.status === 'red' ? 'rejected-container' : 'selected-container';
         const container = document.getElementById(containerId);
@@ -1594,22 +1387,24 @@ function undoRejection() {
             container.removeChild(container.lastChild);
         }
         lastCard.card.style.visibility = 'visible';
-        lastCard.card.classList.remove('selected-card', lastCard.status);
-lastCard.card.style.transform = '';
-lastCard.card.style.fontSize = '16px';
-lastCard.card.style.border = 'none';
-lastCard.card.classList.remove('darkened');
-lastCard.card.style.removeProperty('--dark-color');
+        lastCard.card.classList.remove('selected-card', lastCard.status, 'darkened');
+        lastCard.card.style.transform = '';
+        lastCard.card.style.fontSize = '16px';
+        lastCard.card.style.border = 'none';
+        lastCard.card.style.removeProperty('--dark-color');
+        lastCard.card.querySelector('.front').style.fontWeight = 'normal';
         const cardContainer = document.getElementById('card-container');
         const isRejectPhase = cardContainer.classList.contains('reject-phase');
         lastCard.card.querySelector('.front').innerText = isRejectPhase ? lastCard.card.dataset.opposite : lastCard.card.dataset.text;
         lastCard.card.title = isRejectPhase ? lastCard.card.dataset.text : lastCard.card.dataset.opposite;
-        lastCard.card.querySelector('.front').style.backgroundColor = isRejectPhase ? '#ff9999' : '#abcfab';
+        lastCard.card.querySelector('.front').style.backgroundColor = isRejectPhase ? '#90EE90' : '#FFA500';
         instruction.innerText = CHOOSE_MOST_LIKE_YOU;
         document.getElementById('undo-button').style.display = 'block';
-        document.getElementById('reverse-button').style.display = (CARDS_PER_SET - selectionCount) >= 2 ? 'block' : 'none';
+        const currentSetSize = Array.from(cards).filter(c => c.style.display !== 'none').length;
+        document.getElementById('reverse-button').style.display = (currentSetSize - selectionCount) >= 2 ? 'block' : 'none';
     }
 }
+
 function reverseSentiment() {
     if (isAnimating || selectionCount >= 4 || (CARDS_PER_SET - selectionCount) < 2) return;
     const cardContainer = document.getElementById('card-container');
@@ -1621,27 +1416,30 @@ remainingCards.forEach(card => {
     if (!card.classList.contains('selected-card')) {
         card.querySelector('.front').innerText = isRejectPhase ? card.dataset.text : card.dataset.opposite;
         card.title = isRejectPhase ? card.dataset.opposite : card.dataset.text;
-        card.querySelector('.front').style.backgroundColor = isRejectPhase ? '#abcfab' : '#ff9999';
+        card.querySelector('.front').style.backgroundColor = isRejectPhase ? '#FFA500' : '#90EE90';
     }
 });
-    document.getElementById('reverse-button').style.backgroundColor = isRejectPhase ? '#ff9999' : '#abcfab'; /* Opposite of new card color */
+    document.getElementById('reverse-button').style.backgroundColor = isRejectPhase ? '#90EE90' : '#FFA500'; /* Opposite of new card color */
 }
 cards.forEach((card, index) => {
 card.addEventListener('click', () => {
-    if (card.style.display === 'none' || isAnimating) return;
+    if (card.style.display === 'none') return;
     if (!isFlipped) {
         flipCards();
     } else {
-if (card.classList.contains('selected-card')) {
-    if (!card.classList.contains('darkened')) {
-        // Strengthen (darken) only once
-        card.classList.add('darkened');
-        const status = card.classList.contains('green') ? 'green' : 'red';
-        const darkColor = status === 'green' ? '#7b9c7b' : '#cc6666';
-        card.querySelector('.front').style.backgroundColor = darkColor;
-    }
-    return; // No further action for additional clicks
-} else if (selectionCount < 4) {
+        if (card.classList.contains('selected-card')) {
+            card.classList.toggle('darkened');
+            const front = card.querySelector('.front');
+            const status = card.classList.contains('green') ? 'green' : 'red';
+            const regularColor = status === 'green' ? '#FFA500' : '#90EE90';
+            const darkColor = status === 'green' ? '#C97814' : '#006400';
+            if (card.classList.contains('darkened')) {
+                front.style.backgroundColor = darkColor;
+            } else {
+                front.style.backgroundColor = regularColor;
+            }
+            return;
+        } else if (selectionCount < 4 && !isAnimating) {
             isAnimating = true;
             const isRejectPhase = document.getElementById('card-container').classList.contains('reject-phase');
             const status = isRejectPhase ? 'red' : 'green';
@@ -1663,10 +1461,10 @@ if (card.classList.contains('selected-card')) {
             card.style.border = `${BORDER_WIDTH} solid ${status === 'green' ? DARK_GREEN_BORDER : DARK_RED_BORDER}`;
             selectionCount++;
             allSelections.push({ text, category, status });
+            if (selectionCount === 1) {
+                STRENGTHEN_INSTRUCTION.style.display = 'block';
+            }
             setTimeout(() => { // Small delay to complete drop animation
-                if (selectionCount === 1) {
-                    STRENGTHEN_INSTRUCTION.style.display = 'block';
-                }
                 if (selectionCount === 4 || (selectionCount < 4 && progressContainer.children.length === 0)) {
                     setTimeout(() => { // Delay before animating all to containers
                         selectedCards.forEach(({ card, status }) => {
@@ -1706,7 +1504,7 @@ if (card.classList.contains('selected-card')) {
                     instruction.innerText = CHOOSE_MOST_LIKE_YOU;
                     document.getElementById('undo-button').style.display = 'block';
                     document.getElementById('reverse-button').style.display = (CARDS_PER_SET - selectionCount) >= 2 ? 'block' : 'none';
-                    document.getElementById('reverse-button').style.backgroundColor = isRejectPhase ? '#abcfab' : '#ff9999'; /* Opposite of current card color */
+                    document.getElementById('reverse-button').style.backgroundColor = isRejectPhase ? '#FFA500' : '#90EE90'; /* Opposite of current card color */
                     isAnimating = false;
                 }
             }, 300); // Short delay for drop animation
@@ -1714,6 +1512,7 @@ if (card.classList.contains('selected-card')) {
     }
 });
 });
+
 document.getElementById('reverse-button').addEventListener('click', reverseSentiment);
 document.getElementById('undo-button').addEventListener('click', undoRejection);
 const autoProgressButton = document.getElementById('auto-progress');
